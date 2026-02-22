@@ -15,6 +15,34 @@ import { format, parseISO, differenceInDays, isAfter, isBefore, addDays } from '
 import { ptBR } from 'date-fns/locale';
 
 // =============================================
+// COMPONENTS
+// =============================================
+const Logo = ({ size = 32, showText = true }) => (
+    <div className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="logo-shield" style={{ width: size, height: size, position: 'relative' }}>
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 5L90 27.5V72.5L50 95L10 72.5V27.5L50 5Z" stroke="url(#logo-grad)" strokeWidth="6" strokeLinejoin="round" />
+                <path d="M35 35L45 35L55 65L45 65" stroke="var(--accent-blue)" strokeWidth="8" strokeLinecap="round" />
+                <path d="M45 50H55" stroke="var(--accent-green)" strokeWidth="8" strokeLinecap="round" />
+                <path d="M65 35H75C75 35 82 35 82 50C82 65 75 65 75 65H65" stroke="var(--accent-silver)" strokeWidth="8" strokeLinecap="round" />
+                <defs>
+                    <linearGradient id="logo-grad" x1="0" y1="0" x2="100" y2="100">
+                        <stop offset="0%" stopColor="var(--accent-blue)" />
+                        <stop offset="100%" stopColor="var(--accent-green)" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+        {showText && (
+            <div className="logo-text-wrapper">
+                <div className="logo-main-text">G<span>CAC</span></div>
+                <div className="logo-sub-text">GESTÃO DE DADOS CAC</div>
+            </div>
+        )}
+    </div>
+);
+
+// =============================================
 // HELPER FUNCTIONS
 // =============================================
 const formatDate = (dateStr) => {
@@ -75,10 +103,7 @@ function Sidebar({ isOpen, onClose }) {
             {isOpen && <div className="sidebar-overlay" onClick={onClose}></div>}
             <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
-                    <div className="sidebar-logo">
-                        <div className="logo-icon">GC</div>
-                        <div className="logo-text">G<span>CAC</span></div>
-                    </div>
+                    <Logo size={40} />
                     <button className="mobile-close-btn" onClick={onClose}>
                         <X size={24} />
                     </button>
@@ -2092,10 +2117,7 @@ function App() {
     return (
         <Router>
             <div className="mobile-header">
-                <div className="sidebar-logo">
-                    <div className="logo-icon">GC</div>
-                    <div className="logo-text">G<span>CAC</span></div>
-                </div>
+                <Logo size={32} />
                 <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>
                     <Menu size={24} />
                 </button>
