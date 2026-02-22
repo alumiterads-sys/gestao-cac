@@ -265,9 +265,9 @@ select option {
   background-image: url('/logo.png');
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 50%;
-  opacity: 0.05;
-  /* Marca d'água bem suave */
+  background-size: 55%;
+  opacity: 0.08;
+  /* Marca d'água suave — fundo preto some com mix-blend-mode */
   z-index: -1;
   pointer-events: none;
   mix-blend-mode: screen;
@@ -286,8 +286,9 @@ select option {
 .navbar-logo {
   height: 48px;
   width: auto;
-  /* Remove o fundo preto misturando as cores mais claras com o fundo */
+  /* mix-blend-mode: screen remove o fundo preto da logo GCAC */
   mix-blend-mode: screen;
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
 }
 
 .navbar-title {
@@ -564,11 +565,11 @@ select option {
 
 /* Login Specific */
 .login-logo {
-  height: 120px;
+  height: 140px;
   width: auto;
   mix-blend-mode: screen;
-  /* Remove o fundo preto e brilha no dark theme */
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.1));
+  /* Remove o fundo preto e adiciona brilho azul da marca */
+  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5)) drop-shadow(0 0 40px rgba(59, 130, 246, 0.2));
 }
 
 @keyframes spin {
