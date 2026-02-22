@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, NavLink, useNavigate, useParams
 import {
     Users, PlusCircle, Search, DollarSign, Map, Trash2, Edit, Eye, X,
     Calendar, Clock, Shield, AlertTriangle, UserCheck, UserX, History, FileText, ArrowLeft, Phone,
-    CheckCircle, Circle, Loader, FileCheck, Info, RefreshCw, Bell, AlertCircle
+    CheckCircle, Circle, Loader, FileCheck, Info, RefreshCw, Bell, AlertCircle, Crosshair, Menu
 } from 'lucide-react';
 
 import { supabase } from './lib/supabase';
@@ -54,7 +54,7 @@ const getStatusBadge = (status) => {
 // =============================================
 // SIDEBAR
 // =============================================
-function Sidebar() {
+function Sidebar({ isOpen, onClose }) {
     const [pendingCount, setPendingCount] = useState(0);
     const [alertsCount, setAlertsCount] = useState(0);
 
@@ -71,55 +71,63 @@ function Sidebar() {
     }, []);
 
     return (
-        <aside className="sidebar">
-            <div className="sidebar-logo">
-                <div className="logo-icon">GC</div>
-                <div className="logo-text">G<span>CAC</span></div>
-            </div>
-            <nav className="sidebar-nav">
-                <div className="sidebar-section-title">Principal</div>
-                <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} end>
-                    <Map className="nav-icon" /> Dashboard
-                    {alertsCount > 0 && <span className="nav-badge">{alertsCount}</span>}
-                </NavLink>
+        <>
+            {isOpen && <div className="sidebar-overlay" onClick={onClose}></div>}
+            <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+                <div className="sidebar-header">
+                    <div className="sidebar-logo">
+                        <div className="logo-icon">GC</div>
+                        <div className="logo-text">G<span>CAC</span></div>
+                    </div>
+                    <button className="mobile-close-btn" onClick={onClose}>
+                        <X size={24} />
+                    </button>
+                </div>
+                <nav className="sidebar-nav">
+                    <div className="sidebar-section-title">Principal</div>
+                    <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={onClose} end>
+                        <Map className="nav-icon" /> Dashboard
+                        {alertsCount > 0 && <span className="nav-badge">{alertsCount}</span>}
+                    </NavLink>
 
-                <div className="sidebar-section-title">Gestão</div>
-                <NavLink to="/servicos" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                    <DollarSign className="nav-icon" /> Serviços
-                    {pendingCount > 0 && <span className="nav-badge" style={{ backgroundColor: 'var(--accent-blue)' }}>{pendingCount}</span>}
-                </NavLink>
-                <NavLink to="/clientes" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                    <Users className="nav-icon" /> Clientes
-                </NavLink>
+                    <div className="sidebar-section-title">Gestão</div>
+                    <NavLink to="/servicos" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={onClose}>
+                        <DollarSign className="nav-icon" /> Serviços
+                        {pendingCount > 0 && <span className="nav-badge" style={{ backgroundColor: 'var(--accent-blue)' }}>{pendingCount}</span>}
+                    </NavLink>
+                    <NavLink to="/clientes" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={onClose}>
+                        <Users className="nav-icon" /> Clientes
+                    </NavLink>
 
-                <div className="sidebar-section-title">Financeiro</div>
-                <NavLink to="/filiado" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                    <UserCheck className="nav-icon" /> $ Filiado
-                </NavLink>
-                <NavLink to="/nao-filiado" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                    <UserX className="nav-icon" /> $ Não Filiado
-                </NavLink>
+                    <div className="sidebar-section-title">Financeiro</div>
+                    <NavLink to="/filiado" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={onClose}>
+                        <UserCheck className="nav-icon" /> $ Filiado
+                    </NavLink>
+                    <NavLink to="/nao-filiado" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={onClose}>
+                        <UserX className="nav-icon" /> $ Não Filiado
+                    </NavLink>
 
-                <div className="sidebar-section-title">Registros</div>
-                <NavLink to="/historico" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                    <History className="nav-icon" /> Histórico de Serviços
-                </NavLink>
-                <NavLink to="/crafs" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                    <Crosshair className="nav-icon" /> CRAFs
-                </NavLink>
-                <NavLink to="/guias" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                    <FileText className="nav-icon" /> Guias
-                </NavLink>
-                <NavLink to="/simaf" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                    <Map className="nav-icon" /> SIMAF
-                </NavLink>
-            </nav>
-            <div className="sidebar-footer">
-                <NavLink to="/sobre" className="nav-item">
-                    <Info className="nav-icon" /> Sobre
-                </NavLink>
-            </div>
-        </aside>
+                    <div className="sidebar-section-title">Registros</div>
+                    <NavLink to="/historico" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={onClose}>
+                        <History className="nav-icon" /> Histórico de Serviços
+                    </NavLink>
+                    <NavLink to="/crafs" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={onClose}>
+                        <Crosshair className="nav-icon" /> CRAFs
+                    </NavLink>
+                    <NavLink to="/guias" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={onClose}>
+                        <FileText className="nav-icon" /> Guias
+                    </NavLink>
+                    <NavLink to="/simaf" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} onClick={onClose}>
+                        <Map className="nav-icon" /> SIMAF
+                    </NavLink>
+                </nav>
+                <div className="sidebar-footer">
+                    <NavLink to="/sobre" className="nav-item" onClick={onClose}>
+                        <Info className="nav-icon" /> Sobre
+                    </NavLink>
+                </div>
+            </aside>
+        </>
     );
 }
 
@@ -296,113 +304,115 @@ function ServicosPage() {
                     <button className="btn btn-primary" onClick={() => setShowForm(true)}><PlusCircle size={16} /> Add</button>
                 </div>
             </div>
-            <div className="page-body" style={{ display: 'flex', gap: 20 }}>
-                <div style={{ flex: 1 }}>
-                    <div className="data-table-container">
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Data</th>
-                                    <th>Cliente</th>
-                                    <th>Tipo de Serviço</th>
-                                    <th>Status</th>
-                                    <th>Protocolo?</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="6" className="empty-state">Carregando serviços...</td></tr>
-                                ) : filtered.map(s => (
-                                    <tr key={s.id} onClick={() => setSelected(s)}
-                                        className={selected?.id === s.id ? 'selected' : ''}>
-                                        <td>{formatDate(s.data)}</td>
-                                        <td style={{ fontWeight: 600 }}>{s.cliente}</td>
-                                        <td>{s.tipo_servico}</td>
-                                        <td>{getStatusBadge(s.status)}</td>
-                                        <td>
-                                            <span className={`badge ${s.servico_executado === 'PROTOCOLADO' ? 'badge-green' : 'badge-gold'}`}>
-                                                {s.servico_executado}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div className="service-actions">
-                                                <button className="btn-icon" onClick={e => {
-                                                    e.stopPropagation();
-                                                    if (window.confirm('Excluir este serviço?')) {
-                                                        supabase.from('servicos').delete().eq('id', s.id).then(() => fetchServicos());
-                                                    }
-                                                }}><Trash2 size={16} /></button>
-                                                <button className="btn-icon" onClick={e => {
-                                                    e.stopPropagation();
-                                                    setEditingServico(s);
-                                                }}><Edit size={16} /></button>
-                                            </div>
-                                        </td>
+            <div className="page-body">
+                <div className="content-layout">
+                    <div style={{ flex: 1 }}>
+                        <div className="data-table-container">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Cliente</th>
+                                        <th>Tipo de Serviço</th>
+                                        <th>Status</th>
+                                        <th>Protocolo?</th>
+                                        <th>Ações</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="6" className="empty-state">Carregando serviços...</td></tr>
+                                    ) : filtered.map(s => (
+                                        <tr key={s.id} onClick={() => setSelected(s)}
+                                            className={selected?.id === s.id ? 'selected' : ''}>
+                                            <td data-label="Data">{formatDate(s.data)}</td>
+                                            <td data-label="Cliente" style={{ fontWeight: 600 }}>{s.cliente}</td>
+                                            <td data-label="Tipo">{s.tipo_servico}</td>
+                                            <td data-label="Status">{getStatusBadge(s.status)}</td>
+                                            <td data-label="Protocolo">
+                                                <span className={`badge ${s.servico_executado === 'PROTOCOLADO' ? 'badge-green' : 'badge-gold'}`}>
+                                                    {s.servico_executado}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className="service-actions">
+                                                    <button className="btn-icon" onClick={e => {
+                                                        e.stopPropagation();
+                                                        if (window.confirm('Excluir este serviço?')) {
+                                                            supabase.from('servicos').delete().eq('id', s.id).then(() => fetchServicos());
+                                                        }
+                                                    }}><Trash2 size={16} /></button>
+                                                    <button className="btn-icon" onClick={e => {
+                                                        e.stopPropagation();
+                                                        setEditingServico(s);
+                                                    }}><Edit size={16} /></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                {selected && (
-                    <div className="detail-panel" style={{ width: 400 }}>
-                        <div className="modal-header" style={{ marginBottom: 20 }}>
-                            <h2>DETALHES DO SERVIÇO</h2>
-                            <button className="btn-icon" onClick={() => setSelected(null)}><X size={20} /></button>
-                        </div>
-                        <div className="detail-field">
-                            <div className="field-label">Cliente</div>
-                            <div className="field-value" style={{ fontSize: 18, fontWeight: 700 }}>{selected.cliente}</div>
-                        </div>
-                        <div className="detail-field">
-                            <div className="field-label">Serviço</div>
-                            <div className="field-value">{selected.tipo_servico}</div>
-                        </div>
-                        <div className="form-row">
-                            <div className="detail-field">
-                                <div className="field-label">Data</div>
-                                <div className="field-value">{formatDate(selected.data)}</div>
+                    {selected && (
+                        <div className="detail-panel">
+                            <div className="detail-panel-header">
+                                <h3>DETALHES DO SERVIÇO</h3>
+                                <button className="btn-icon" onClick={() => setSelected(null)}><X size={20} /></button>
                             </div>
                             <div className="detail-field">
-                                <div className="field-label">Protocolo</div>
-                                <div className="field-value">{selected.n_protocolo || '—'}</div>
-                            </div>
-                        </div>
-                        <div className="form-row">
-                            <div className="detail-field">
-                                <div className="field-label">Valor</div>
-                                <div className="field-value" style={{ color: 'var(--accent-green)', fontWeight: 700 }}>{formatMoney(selected.valor)}</div>
+                                <div className="field-label">Cliente</div>
+                                <div className="field-value" style={{ fontSize: 18, fontWeight: 700 }}>{selected.cliente}</div>
                             </div>
                             <div className="detail-field">
-                                <div className="field-label">Pagamento</div>
-                                <div className="field-value">
-                                    <span className={`badge ${selected.pago_ou_pendente === 'Pago' ? 'badge-green' : 'badge-gold'}`}>
-                                        {selected.pago_ou_pendente}
-                                    </span>
+                                <div className="field-label">Serviço</div>
+                                <div className="field-value">{selected.tipo_servico}</div>
+                            </div>
+                            <div className="form-row">
+                                <div className="detail-field">
+                                    <div className="field-label">Data</div>
+                                    <div className="field-value">{formatDate(selected.data)}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Protocolo</div>
+                                    <div className="field-value">{selected.n_protocolo || '—'}</div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="detail-field">
-                            <div className="field-label">Forma de Pagamento</div>
-                            <div className="field-value">{selected.forma_pagamento || '—'}</div>
-                        </div>
-                        <div className="detail-field">
-                            <div className="field-label">Observações</div>
-                            <div className="field-value" style={{ fontStyle: 'italic', background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8 }}>
-                                {selected.observacoes || 'Sem observações.'}
+                            <div className="form-row">
+                                <div className="detail-field">
+                                    <div className="field-label">Valor</div>
+                                    <div className="field-value" style={{ color: 'var(--accent-green)', fontWeight: 700 }}>{formatMoney(selected.valor)}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Pagamento</div>
+                                    <div className="field-value">
+                                        <span className={`badge ${selected.pago_ou_pendente === 'Pago' ? 'badge-green' : 'badge-gold'}`}>
+                                            {selected.pago_ou_pendente}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="detail-field">
+                                <div className="field-label">Forma de Pagamento</div>
+                                <div className="field-value">{selected.forma_pagamento || '—'}</div>
+                            </div>
+                            <div className="detail-field">
+                                <div className="field-label">Observações</div>
+                                <div className="field-value" style={{ fontStyle: 'italic', background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8 }}>
+                                    {selected.observacoes || 'Sem observações.'}
+                                </div>
+                            </div>
+                            <div style={{ marginTop: 20, display: 'flex', gap: 12 }}>
+                                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingServico(selected)}>
+                                    <Edit size={16} /> Editar
+                                </button>
+                                <button className="btn btn-primary" style={{ flex: 1 }}>
+                                    <FileText size={16} /> Gerar PDF
+                                </button>
                             </div>
                         </div>
-                        <div style={{ marginTop: 20, display: 'flex', gap: 12 }}>
-                            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingServico(selected)}>
-                                <Edit size={16} /> Editar
-                            </button>
-                            <button className="btn btn-primary" style={{ flex: 1 }}>
-                                <FileText size={16} /> Gerar PDF
-                            </button>
-                        </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
             {showForm && <AddServicoModal onClose={() => setShowForm(false)} onSave={fetchServicos} clientes={clientesList} />}
             {editingServico && <AddServicoModal initialData={editingServico} onClose={() => setEditingServico(null)} onSave={() => { fetchServicos(); setSelected(null); }} clientes={clientesList} />}
@@ -556,7 +566,7 @@ function ClienteDetailPage() {
                 </div>
             </div>
 
-            <div className="info-grid">
+            <div className="info-grid stagger">
                 <div className="info-card">
                     <div className="info-label">CPF</div>
                     <div className="info-value" style={{ fontFamily: 'Courier New, monospace' }}>{client.cpf}</div>
@@ -605,8 +615,8 @@ function ClienteDetailPage() {
                             <tbody>
                                 {clientIbama.map((ib, i) => (
                                     <tr key={i}>
-                                        <td>{ib.cr_ibama || '—'}</td>
-                                        <td>{formatDate(ib.venc_cr_ibama)}</td>
+                                        <td data-label="CR IBAMA">{ib.cr_ibama || '—'}</td>
+                                        <td data-label="Vencimento">{formatDate(ib.venc_cr_ibama)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -642,15 +652,15 @@ function ClienteDetailPage() {
                         <tbody>
                             {clientCrafs.map(cr => (
                                 <tr key={cr.id}>
-                                    <td style={{ fontWeight: 600 }}>{cr.modeloArma}</td>
-                                    <td>{cr.tipo}</td>
-                                    <td><span className="badge badge-blue">{cr.calibre}</span></td>
-                                    <td style={{ fontFamily: 'Courier New, monospace', fontSize: 12 }}>{cr.nSerie}</td>
-                                    <td>{cr.nSigma}</td>
-                                    <td style={{ color: getDaysUntil(cr.vencimentoCraf) < 60 ? 'var(--accent-gold)' : 'inherit' }}>
+                                    <td data-label="Modelo" style={{ fontWeight: 600 }}>{cr.modeloArma}</td>
+                                    <td data-label="Tipo">{cr.tipo}</td>
+                                    <td data-label="Calibre"><span className="badge badge-blue">{cr.calibre}</span></td>
+                                    <td data-label="Série" style={{ fontFamily: 'Courier New, monospace', fontSize: 12 }}>{cr.nSerie}</td>
+                                    <td data-label="SIGMA">{cr.nSigma}</td>
+                                    <td data-label="Vencimento" style={{ color: getDaysUntil(cr.vencimentoCraf) < 60 ? 'var(--accent-gold)' : 'inherit' }}>
                                         {formatDate(cr.vencimentoCraf)}
                                     </td>
-                                    <td><span className={`badge ${cr.acervo === 'Caça' ? 'badge-green' : 'badge-blue'}`}>{cr.acervo}</span></td>
+                                    <td data-label="Acervo"><span className={`badge ${cr.acervo === 'Caça' ? 'badge-green' : 'badge-blue'}`}>{cr.acervo}</span></td>
                                 </tr>
                             ))}
                             {clientCrafs.length === 0 && (
@@ -675,10 +685,10 @@ function ClienteDetailPage() {
                         <tbody>
                             {clientGuias.map(g => (
                                 <tr key={g.id}>
-                                    <td style={{ fontWeight: 500 }}>{g.arma}</td>
-                                    <td>{formatDate(g.dataVencimento)}</td>
-                                    <td><span className={`badge ${g.tipoGuia === 'Caça' ? 'badge-green' : g.tipoGuia === 'Caça Treino' ? 'badge-gold' : 'badge-blue'}`}>{g.tipoGuia}</span></td>
-                                    <td>{g.destino}</td>
+                                    <td data-label="Arma" style={{ fontWeight: 500 }}>{g.arma}</td>
+                                    <td data-label="Vencimento">{formatDate(g.dataVencimento)}</td>
+                                    <td data-label="Tipo"><span className={`badge ${g.tipoGuia === 'Caça' ? 'badge-green' : g.tipoGuia === 'Caça Treino' ? 'badge-gold' : 'badge-blue'}`}>{g.tipoGuia}</span></td>
+                                    <td data-label="Destino">{g.destino}</td>
                                 </tr>
                             ))}
                             {clientGuias.length === 0 && (
@@ -725,40 +735,43 @@ function FiliadoPage() {
                     <button className="btn btn-primary" onClick={() => setShowAddModal(true)}><PlusCircle size={16} /> Add</button>
                 </div>
             </div>
-            <div className="page-body" style={{ display: 'flex', gap: 20 }}>
-                <div style={{ flex: 1 }}>
-                    <div className="data-table-container">
-                        <table className="pricing-table">
-                            <thead>
-                                <tr>
-                                    <th>Serviços</th>
-                                    <th>Taxas (GRU)</th>
-                                    <th>Valor</th>
-                                    <th>Observações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="4" className="empty-state">Carregando...</td></tr>
-                                ) : precos.map(item => (
-                                    <tr key={item.id} onClick={() => setSelected(item)}
-                                        className={selected?.id === item.id ? 'selected' : ''} style={{ cursor: 'pointer' }}>
-                                        <td style={{ fontWeight: 500 }}>{item.servico}</td>
-                                        <td className="tax">{formatMoney(item.taxas_gru)}</td>
-                                        <td className="price">{formatMoney(item.valor)}</td>
-                                        <td className="obs-cell">{item.observacoes || '—'}</td>
+            <div className="page-body">
+                <div className="content-layout">
+                    <div style={{ flex: 1 }}>
+                        <div className="data-table-container">
+                            <table className="pricing-table">
+                                <thead>
+                                    <tr>
+                                        <th>Serviços</th>
+                                        <th>Taxas (GRU)</th>
+                                        <th>Valor</th>
+                                        <th>Observações</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="4" className="empty-state">Carregando...</td></tr>
+                                    ) : precos.map(item => (
+                                        <tr key={item.id} onClick={() => setSelected(item)}
+                                            className={selected?.id === item.id ? 'selected' : ''} style={{ cursor: 'pointer' }}>
+                                            <td data-label="Serviços" style={{ fontWeight: 500 }}>{item.servico}</td>
+                                            <td data-label="Taxas (GRU)" className="tax">{formatMoney(item.taxas_gru)}</td>
+                                            <td data-label="Valor" className="price">{formatMoney(item.valor)}</td>
+                                            <td data-label="Observações" className="obs-cell">{item.observacoes || '—'}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                {selected && (
-                    <div style={{ width: 320 }}>
-                        <div className="data-table-container" style={{ padding: 20 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                                <h3 style={{ fontSize: 14, fontWeight: 700 }}>DETALHES</h3>
-                                <div style={{ display: 'flex', gap: 8 }}>
+                    {selected && (
+                        <div className="detail-panel">
+                            <div className="detail-panel-header">
+                                <h3>DETALHES</h3>
+                                <button className="btn-icon" onClick={() => setSelected(null)}><X size={20} /></button>
+                            </div>
+                            <div className="detail-panel-body">
+                                <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
                                     <button className="btn-icon" onClick={async () => {
                                         if (window.confirm('Excluir este preço?')) {
                                             await supabase.from('tabela_precos').delete().eq('id', selected.id);
@@ -766,30 +779,30 @@ function FiliadoPage() {
                                             setSelected(null);
                                         }
                                     }}><Trash2 size={16} /></button>
-                                    <button className="btn btn-secondary" style={{ padding: '6px 12px' }} onClick={() => setEditingPreco(selected)}><Edit size={14} /> Editar</button>
+                                    <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingPreco(selected)}><Edit size={14} /> Editar</button>
                                 </div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Serviços</div>
-                                <div className="field-value">{selected.servico}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Taxas (GRU)</div>
-                                <div className="field-value money-gold">{formatMoney(selected.taxas_gru)}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Valor</div>
-                                <div className="field-value money-green" style={{ fontSize: 20 }}>{formatMoney(selected.valor)}</div>
-                            </div>
-                            {selected.observacoes && (
                                 <div className="detail-field">
-                                    <div className="field-label">Observações</div>
-                                    <div className="field-value" style={{ fontSize: 13 }}>{selected.observacoes}</div>
+                                    <div className="field-label">Serviços</div>
+                                    <div className="field-value">{selected.servico}</div>
                                 </div>
-                            )}
+                                <div className="detail-field">
+                                    <div className="field-label">Taxas (GRU)</div>
+                                    <div className="field-value money-gold">{formatMoney(selected.taxas_gru)}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Valor</div>
+                                    <div className="field-value money-green" style={{ fontSize: 20 }}>{formatMoney(selected.valor)}</div>
+                                </div>
+                                {selected.observacoes && (
+                                    <div className="detail-field">
+                                        <div className="field-label">Observações</div>
+                                        <div className="field-value" style={{ fontSize: 13 }}>{selected.observacoes}</div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
             {showAddModal && <PrecoModal onClose={() => setShowAddModal(false)} onSave={fetchPrecos} defaultTipo="Filiado" />}
             {editingPreco && <PrecoModal initialData={editingPreco} onClose={() => setEditingPreco(null)} onSave={() => { fetchPrecos(); setSelected(null); }} />}
@@ -830,40 +843,43 @@ function NaoFiliadoPage() {
                     <button className="btn btn-primary" onClick={() => setShowAddModal(true)}><PlusCircle size={16} /> Add</button>
                 </div>
             </div>
-            <div className="page-body" style={{ display: 'flex', gap: 20 }}>
-                <div style={{ flex: 1 }}>
-                    <div className="data-table-container">
-                        <table className="pricing-table">
-                            <thead>
-                                <tr>
-                                    <th>Serviços</th>
-                                    <th>Taxas (GRU)</th>
-                                    <th>Valor</th>
-                                    <th>Observações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="4" className="empty-state">Carregando...</td></tr>
-                                ) : precos.map(item => (
-                                    <tr key={item.id} onClick={() => setSelected(item)}
-                                        className={selected?.id === item.id ? 'selected' : ''} style={{ cursor: 'pointer' }}>
-                                        <td style={{ fontWeight: 500 }}>{item.servico}</td>
-                                        <td className="tax">{formatMoney(item.taxas_gru)}</td>
-                                        <td className="price">{formatMoney(item.valor)}</td>
-                                        <td className="obs-cell">{item.observacoes || '—'}</td>
+            <div className="page-body">
+                <div className="content-layout">
+                    <div style={{ flex: 1 }}>
+                        <div className="data-table-container">
+                            <table className="pricing-table">
+                                <thead>
+                                    <tr>
+                                        <th>Serviços</th>
+                                        <th>Taxas (GRU)</th>
+                                        <th>Valor</th>
+                                        <th>Observações</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="4" className="empty-state">Carregando...</td></tr>
+                                    ) : precos.map(item => (
+                                        <tr key={item.id} onClick={() => setSelected(item)}
+                                            className={selected?.id === item.id ? 'selected' : ''} style={{ cursor: 'pointer' }}>
+                                            <td data-label="Serviços" style={{ fontWeight: 500 }}>{item.servico}</td>
+                                            <td data-label="Taxas (GRU)" className="tax">{formatMoney(item.taxas_gru)}</td>
+                                            <td data-label="Valor" className="price">{formatMoney(item.valor)}</td>
+                                            <td data-label="Observações" className="obs-cell">{item.observacoes || '—'}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                {selected && (
-                    <div style={{ width: 320 }}>
-                        <div className="data-table-container" style={{ padding: 20 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                                <h3 style={{ fontSize: 14, fontWeight: 700 }}>DETALHES</h3>
-                                <div style={{ display: 'flex', gap: 8 }}>
+                    {selected && (
+                        <div className="detail-panel">
+                            <div className="detail-panel-header">
+                                <h3>DETALHES</h3>
+                                <button className="btn-icon" onClick={() => setSelected(null)}><X size={20} /></button>
+                            </div>
+                            <div className="detail-panel-body">
+                                <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
                                     <button className="btn-icon" onClick={async () => {
                                         if (window.confirm('Excluir este preço?')) {
                                             await supabase.from('tabela_precos').delete().eq('id', selected.id);
@@ -871,30 +887,30 @@ function NaoFiliadoPage() {
                                             setSelected(null);
                                         }
                                     }}><Trash2 size={16} /></button>
-                                    <button className="btn btn-secondary" style={{ padding: '6px 12px' }} onClick={() => setEditingPreco(selected)}><Edit size={14} /> Editar</button>
+                                    <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingPreco(selected)}><Edit size={14} /> Editar</button>
                                 </div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Serviços</div>
-                                <div className="field-value">{selected.servico}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Taxas (GRU)</div>
-                                <div className="field-value money-gold">{formatMoney(selected.taxas_gru)}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Valor</div>
-                                <div className="field-value money-green" style={{ fontSize: 20 }}>{formatMoney(selected.valor)}</div>
-                            </div>
-                            {selected.observacoes && (
                                 <div className="detail-field">
-                                    <div className="field-label">Observações</div>
-                                    <div className="field-value" style={{ fontSize: 13 }}>{selected.observacoes}</div>
+                                    <div className="field-label">Serviços</div>
+                                    <div className="field-value">{selected.servico}</div>
                                 </div>
-                            )}
+                                <div className="detail-field">
+                                    <div className="field-label">Taxas (GRU)</div>
+                                    <div className="field-value money-gold">{formatMoney(selected.taxas_gru)}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Valor</div>
+                                    <div className="field-value money-green" style={{ fontSize: 20 }}>{formatMoney(selected.valor)}</div>
+                                </div>
+                                {selected.observacoes && (
+                                    <div className="detail-field">
+                                        <div className="field-label">Observações</div>
+                                        <div className="field-value" style={{ fontSize: 13 }}>{selected.observacoes}</div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
             {showAddModal && <PrecoModal onClose={() => setShowAddModal(false)} onSave={fetchPrecos} defaultTipo="Não Filiado" />}
             {editingPreco && <PrecoModal initialData={editingPreco} onClose={() => setEditingPreco(null)} onSave={() => { fetchPrecos(); setSelected(null); }} />}
@@ -948,86 +964,91 @@ function HistoricoPage() {
                     </div>
                 </div>
             </div>
-            <div className="page-body" style={{ display: 'flex', gap: 20 }}>
-                <div style={{ flex: 1 }}>
-                    <div className="data-table-container">
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Data ↑</th>
-                                    <th>Status</th>
-                                    <th>Nome</th>
-                                    <th>Executado?</th>
-                                    <th>Serviço</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="5" className="empty-state">Carregando histórico...</td></tr>
-                                ) : filtered.map(h => (
-                                    <tr key={h.id} onClick={() => setSelected(h)}
-                                        className={selected?.id === h.id ? 'selected' : ''}>
-                                        <td>{formatDate(h.data)}</td>
-                                        <td>{getStatusBadge(h.status)}</td>
-                                        <td style={{ fontWeight: 500 }}>{h.nome}</td>
-                                        <td>{h.servico_executado}</td>
-                                        <td>{h.tipo_servico}</td>
+            <div className="page-body">
+                <div className="content-layout">
+                    <div style={{ flex: 1 }}>
+                        <div className="data-table-container">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Data ↑</th>
+                                        <th>Status</th>
+                                        <th>Nome</th>
+                                        <th>Executado?</th>
+                                        <th>Serviço</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="5" className="empty-state">Carregando histórico...</td></tr>
+                                    ) : filtered.map(h => (
+                                        <tr key={h.id} onClick={() => setSelected(h)}
+                                            className={selected?.id === h.id ? 'selected' : ''}>
+                                            <td data-label="Data">{formatDate(h.data)}</td>
+                                            <td data-label="Status">{getStatusBadge(h.status)}</td>
+                                            <td data-label="Nome" style={{ fontWeight: 500 }}>{h.nome}</td>
+                                            <td data-label="Executado">{h.servico_executado}</td>
+                                            <td data-label="Serviço">{h.tipo_servico}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                {selected && (
-                    <div style={{ width: 340 }}>
-                        <div className="data-table-container" style={{ padding: 20 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                                <h3 style={{ fontSize: 14, fontWeight: 700 }}>DETALHES</h3>
-                                <button className="btn btn-secondary" style={{ padding: '6px 12px' }} onClick={() => setEditingServico(selected)}><Edit size={14} /> Editar</button>
+                    {selected && (
+                        <div className="detail-panel">
+                            <div className="detail-panel-header">
+                                <h3>DETALHES</h3>
+                                <button className="btn-icon" onClick={() => setSelected(null)}><X size={20} /></button>
                             </div>
-                            <div className="detail-field">
-                                <div className="field-label">Data</div>
-                                <div className="field-value">{formatDate(selected.data)}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Status</div>
-                                <div className="field-value">{getStatusBadge(selected.status)}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Nome</div>
-                                <div className="field-value">{selected.nome}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Serviço Executado?</div>
-                                <div className="field-value">{selected.servico_executado}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Serviços</div>
-                                <div className="field-value">{selected.tipo_servico}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">GRU Paga?</div>
-                                <div className="field-value">{selected.gru_paga ? 'SIM' : 'NÃO'}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Filiado no Pro Tiro?</div>
-                                <div className="field-value">{selected.filiado_pro_tiro ? 'SIM' : 'NÃO'}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Valor</div>
-                                <div className="field-value money-green">{formatMoney(selected.valor)}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Pago ou Pendente</div>
-                                <div className="field-value">
-                                    <span className={`badge ${selected.pago_ou_pendente === 'Pago' ? 'badge-green' : 'badge-gold'}`}>
-                                        {selected.pago_ou_pendente}
-                                    </span>
+                            <div className="detail-panel-body">
+                                <div style={{ marginBottom: 20 }}>
+                                    <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => setEditingServico(selected)}><Edit size={14} /> Editar</button>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Data</div>
+                                    <div className="field-value">{formatDate(selected.data)}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Status</div>
+                                    <div className="field-value" style={{ display: 'block' }}>{getStatusBadge(selected.status)}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Nome</div>
+                                    <div className="field-value">{selected.nome}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Serviço Executado?</div>
+                                    <div className="field-value">{selected.servico_executado}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Serviços</div>
+                                    <div className="field-value">{selected.tipo_servico}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">GRU Paga?</div>
+                                    <div className="field-value">{selected.gru_paga ? 'SIM' : 'NÃO'}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Filiado no Pro Tiro?</div>
+                                    <div className="field-value">{selected.filiado_pro_tiro ? 'SIM' : 'NÃO'}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Valor</div>
+                                    <div className="field-value money-green">{formatMoney(selected.valor)}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Pago ou Pendente</div>
+                                    <div className="field-value">
+                                        <span className={`badge ${selected.pago_ou_pendente === 'Pago' ? 'badge-green' : 'badge-gold'}`}>
+                                            {selected.pago_ou_pendente}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
             {editingServico && <AddServicoModal initialData={editingServico} onClose={() => setEditingServico(null)} onSave={() => { fetchHistorico(); setSelected(null); }} clientes={clientesList} />}
         </>
@@ -1083,49 +1104,49 @@ function CrafsPage() {
                     <button className="btn btn-primary" onClick={() => setShowAddModal(true)}><PlusCircle size={16} /> Add</button>
                 </div>
             </div>
-            <div className="page-body" style={{ display: 'flex', gap: 20 }}>
-                <div style={{ flex: 1 }}>
-                    <div className="data-table-container">
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Cliente</th>
-                                    <th>Tipo</th>
-                                    <th>Calibre</th>
-                                    <th>Modelo Arma</th>
-                                    <th>Nº de Série</th>
-                                    <th>Nº SIGMA</th>
-                                    <th>Vencimento CRAF</th>
-                                    <th>Acervo</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="8" className="empty-state">Carregando CRAFs...</td></tr>
-                                ) : filtered.map(cr => (
-                                    <tr key={cr.id} onClick={() => setSelected(cr)}
-                                        className={selected?.id === cr.id ? 'selected' : ''}>
-                                        <td style={{ fontWeight: 500 }}>{cr.cliente}</td>
-                                        <td>{cr.tipo}</td>
-                                        <td><span className="badge badge-blue">{cr.calibre}</span></td>
-                                        <td style={{ fontWeight: 600 }}>{cr.modelo_arma}</td>
-                                        <td style={{ fontFamily: 'Courier New, monospace', fontSize: 12 }}>{cr.n_serie}</td>
-                                        <td>{cr.n_sigma}</td>
-                                        <td style={{ color: getDaysUntil(cr.vencimento_craf) < 90 ? 'var(--accent-gold)' : 'inherit' }}>
-                                            {formatDate(cr.vencimento_craf)}
-                                        </td>
-                                        <td><span className={`badge ${cr.acervo === 'Caça' ? 'badge-green' : 'badge-blue'}`}>{cr.acervo}</span></td>
+            <div className="page-body">
+                <div className="content-layout">
+                    <div style={{ flex: 1 }}>
+                        <div className="data-table-container">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Tipo</th>
+                                        <th>Calibre</th>
+                                        <th>Modelo Arma</th>
+                                        <th>Nº de Série</th>
+                                        <th>Nº SIGMA</th>
+                                        <th>Vencimento CRAF</th>
+                                        <th>Acervo</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="8" className="empty-state">Carregando CRAFs...</td></tr>
+                                    ) : filtered.map(cr => (
+                                        <tr key={cr.id} onClick={() => setSelected(cr)}
+                                            className={selected?.id === cr.id ? 'selected' : ''}>
+                                            <td data-label="Cliente" style={{ fontWeight: 500 }}>{cr.cliente}</td>
+                                            <td data-label="Tipo">{cr.tipo}</td>
+                                            <td data-label="Calibre"><span className="badge badge-blue">{cr.calibre}</span></td>
+                                            <td data-label="Modelo" style={{ fontWeight: 600 }}>{cr.modelo_arma}</td>
+                                            <td data-label="Série" style={{ fontFamily: 'Courier New, monospace', fontSize: 12 }}>{cr.n_serie}</td>
+                                            <td data-label="SIGMA">{cr.n_sigma}</td>
+                                            <td data-label="Vencimento" style={{ color: getDaysUntil(cr.vencimento_craf) < 90 ? 'var(--accent-gold)' : 'inherit' }}>
+                                                {formatDate(cr.vencimento_craf)}
+                                            </td>
+                                            <td data-label="Acervo"><span className={`badge ${cr.acervo === 'Caça' ? 'badge-green' : 'badge-blue'}`}>{cr.acervo}</span></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                {selected && (
-                    <div style={{ width: 340 }}>
-                        <div className="data-table-container" style={{ padding: 20 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                                <h3 style={{ fontSize: 14, fontWeight: 700 }}>DETALHES</h3>
+                    {selected && (
+                        <div className="detail-panel">
+                            <div className="detail-panel-header">
+                                <h3>DETALHES</h3>
                                 <div style={{ display: 'flex', gap: 8 }}>
                                     <button className="btn-icon" onClick={() => {
                                         if (window.confirm('Excluir este CRAF?')) {
@@ -1135,53 +1156,51 @@ function CrafsPage() {
                                             });
                                         }
                                     }}><Trash2 size={16} /></button>
-                                    <button className="btn btn-secondary" style={{ padding: '6px 12px' }} onClick={() => setEditingCraf(selected)}><Edit size={14} /> Editar</button>
+                                    <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingCraf(selected)}><Edit size={14} /> Editar</button>
                                     <button className="btn-icon" onClick={() => setSelected(null)}><X size={16} /></button>
                                 </div>
                             </div>
-                            <div className="detail-field">
-                                <div className="field-label">Cliente</div>
-                                <div className="field-value" style={{
-                                    fontSize: 16
-
-                                    , fontWeight: 700
-                                }}>{selected.cliente}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Tipo</div>
-                                <div className="field-value">{selected.tipo}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Nº de Série</div>
-                                <div className="field-value" style={{ fontFamily: 'Courier New, monospace' }}>{selected.n_serie}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Nº SIGMA</div>
-                                <div className="field-value">{selected.n_sigma}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Modelo Arma</div>
-                                <div className="field-value">{selected.modelo_arma}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Vencimento do CRAF</div>
-                                <div className="field-value">{formatDate(selected.vencimento_craf)}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Calibre</div>
-                                <div className="field-value"><span className="badge badge-blue">{selected.calibre}</span></div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Acervo</div>
-                                <div className="field-value">
-                                    <span className={`badge ${selected.acervo === 'Caça' ? 'badge-green' : 'badge-blue'}`}>
-                                        {selected.acervo}
-                                    </span>
+                            <div className="detail-panel-body">
+                                <div className="detail-field">
+                                    <div className="field-label">Cliente</div>
+                                    <div className="field-value" style={{ fontSize: 16, fontWeight: 700 }}>{selected.cliente}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Tipo</div>
+                                    <div className="field-value">{selected.tipo}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Nº de Série</div>
+                                    <div className="field-value" style={{ fontFamily: 'Courier New, monospace' }}>{selected.n_serie}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Nº SIGMA</div>
+                                    <div className="field-value">{selected.n_sigma}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Modelo Arma</div>
+                                    <div className="field-value">{selected.modelo_arma}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Vencimento do CRAF</div>
+                                    <div className="field-value">{formatDate(selected.vencimento_craf)}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Calibre</div>
+                                    <div className="field-value"><span className="badge badge-blue">{selected.calibre}</span></div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Acervo</div>
+                                    <div className="field-value">
+                                        <span className={`badge ${selected.acervo === 'Caça' ? 'badge-green' : 'badge-blue'}`}>
+                                            {selected.acervo}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
             {showAddModal && <AddCrafModal onClose={() => setShowAddModal(false)} onSave={fetchData} clientes={clientesList} />}
             {editingCraf && <AddCrafModal initialData={editingCraf} onClose={() => setEditingCraf(null)} onSave={() => { fetchData(); setSelected(null); }} clientes={clientesList} />}
@@ -1238,48 +1257,51 @@ function GuiasPage() {
                     <button className="btn btn-primary" onClick={() => setShowAddModal(true)}><PlusCircle size={16} /> Add</button>
                 </div>
             </div>
-            <div className="page-body" style={{ display: 'flex', gap: 20 }}>
-                <div style={{ flex: 1 }}>
-                    <div className="data-table-container">
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Arma</th>
-                                    <th>Data de Vencimento</th>
-                                    <th>Tipo de Guia</th>
-                                    <th>Destino</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="5" className="empty-state">Carregando guias...</td></tr>
-                                ) : filtered.map(g => (
-                                    <tr key={g.id} onClick={() => setSelected(g)}
-                                        className={selected?.id === g.id ? 'selected' : ''}>
-                                        <td style={{ fontWeight: 500 }}>{g.nome}</td>
-                                        <td>{g.arma_nome}</td>
-                                        <td style={{ color: getDaysUntil(g.data_vencimento) < 30 ? 'var(--accent-gold)' : 'inherit' }}>
-                                            {formatDate(g.data_vencimento)}
-                                        </td>
-                                        <td>
-                                            <span className={`badge ${g.tipo_guia === 'Caça' ? 'badge-green' : g.tipo_guia === 'Caça Treino' ? 'badge-gold' : 'badge-blue'}`}>
-                                                {g.tipo_guia}
-                                            </span>
-                                        </td>
-                                        <td>{g.destino}</td>
+            <div className="page-body">
+                <div className="content-layout">
+                    <div style={{ flex: 1 }}>
+                        <div className="data-table-container">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Arma</th>
+                                        <th>Data de Vencimento</th>
+                                        <th>Tipo de Guia</th>
+                                        <th>Destino</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="5" className="empty-state">Carregando guias...</td></tr>
+                                    ) : filtered.map(g => (
+                                        <tr key={g.id} onClick={() => setSelected(g)}
+                                            className={selected?.id === g.id ? 'selected' : ''}>
+                                            <td data-label="Nome" style={{ fontWeight: 500 }}>{g.nome}</td>
+                                            <td data-label="Arma">{g.arma_nome}</td>
+                                            <td data-label="Vencimento" style={{ color: getDaysUntil(g.data_vencimento) < 30 ? 'var(--accent-gold)' : 'inherit' }}>
+                                                {formatDate(g.data_vencimento)}
+                                            </td>
+                                            <td data-label="Tipo">
+                                                <span className={`badge ${g.tipo_guia === 'Caça' ? 'badge-green' : g.tipo_guia === 'Caça Treino' ? 'badge-gold' : 'badge-blue'}`}>
+                                                    {g.tipo_guia}
+                                                </span>
+                                            </td>
+                                            <td data-label="Destino">{g.destino}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                {selected && (
-                    <div style={{ width: 340 }}>
-                        <div className="data-table-container" style={{ padding: 20 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                                <h3 style={{ fontSize: 14, fontWeight: 700 }}>DETALHES</h3>
-                                <div style={{ display: 'flex', gap: 8 }}>
+                    {selected && (
+                        <div className="detail-panel">
+                            <div className="detail-panel-header">
+                                <h3>DETALHES</h3>
+                                <button className="btn-icon" onClick={() => setSelected(null)}><X size={20} /></button>
+                            </div>
+                            <div className="detail-panel-body">
+                                <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
                                     <button className="btn-icon" onClick={() => {
                                         if (window.confirm('Excluir esta Guia?')) {
                                             supabase.from('guias').delete().eq('id', selected.id).then(() => {
@@ -1288,35 +1310,34 @@ function GuiasPage() {
                                             });
                                         }
                                     }}><Trash2 size={16} /></button>
-                                    <button className="btn btn-secondary" style={{ padding: '6px 12px' }} onClick={() => setEditingGuia(selected)}><Edit size={14} /> Editar</button>
-                                    <button className="btn-icon" onClick={() => setSelected(null)}><X size={16} /></button>
+                                    <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingGuia(selected)}><Edit size={14} /> Editar</button>
                                 </div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Nome</div>
-                                <div className="field-value">{selected.nome}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Arma</div>
-                                <div className="field-value">{selected.arma_nome}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Tipo de Guia</div>
-                                <div className="field-value">
-                                    <span className={`badge ${selected.tipo_guia === 'Caça' ? 'badge-green' : 'badge-gold'}`}>{selected.tipo_guia}</span>
+                                <div className="detail-field">
+                                    <div className="field-label">Nome</div>
+                                    <div className="field-value">{selected.nome}</div>
                                 </div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Data de Vencimento</div>
-                                <div className="field-value">{formatDate(selected.data_vencimento)}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Destino</div>
-                                <div className="field-value">{selected.destino}</div>
+                                <div className="detail-field">
+                                    <div className="field-label">Arma</div>
+                                    <div className="field-value">{selected.arma_nome}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Tipo de Guia</div>
+                                    <div className="field-value">
+                                        <span className={`badge ${selected.tipo_guia === 'Caça' ? 'badge-green' : 'badge-gold'}`}>{selected.tipo_guia}</span>
+                                    </div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Data de Vencimento</div>
+                                    <div className="field-value">{formatDate(selected.data_vencimento)}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Destino</div>
+                                    <div className="field-value">{selected.destino}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
             {showAddModal && <AddGuiaModal onClose={() => setShowAddModal(false)} onSave={fetchData} clientes={clientesList} />}
             {editingGuia && <AddGuiaModal initialData={editingGuia} onClose={() => setEditingGuia(null)} onSave={() => { fetchData(); setSelected(null); }} clientes={clientesList} />}
@@ -1373,48 +1394,51 @@ function SimafPage() {
                     <button className="btn btn-primary" onClick={() => setShowAddModal(true)}><PlusCircle size={16} /> Add</button>
                 </div>
             </div>
-            <div className="page-body" style={{ display: 'flex', gap: 20 }}>
-                <div style={{ flex: 1 }}>
-                    <div className="data-table-container">
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Data de Vencimento ↑</th>
-                                    <th>Cliente</th>
-                                    <th>Fazenda</th>
-                                    <th>Proprietário</th>
-                                    <th>Cidade</th>
-                                    <th>Nº do CAR</th>
-                                    <th>Observações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="7" className="empty-state">Carregando SIMAF...</td></tr>
-                                ) : filtered.map(s => (
-                                    <tr key={s.id} onClick={() => setSelected(s)}
-                                        className={selected?.id === s.id ? 'selected' : ''}>
-                                        <td style={{ color: getDaysUntil(s.data_vencimento) < 30 ? 'var(--accent-red)' : 'inherit' }}>
-                                            {formatDate(s.data_vencimento)}
-                                        </td>
-                                        <td style={{ fontWeight: 500 }}>{s.cliente}</td>
-                                        <td>{s.fazenda}</td>
-                                        <td>{s.proprietario}</td>
-                                        <td>{s.cidade}</td>
-                                        <td style={{ fontFamily: 'Courier New, monospace', fontSize: 12 }}>{s.n_car}</td>
-                                        <td style={{ color: 'var(--text-muted)', maxWidth: 200 }}>{s.observacoes || '—'}</td>
+            <div className="page-body">
+                <div className="content-layout">
+                    <div style={{ flex: 1 }}>
+                        <div className="data-table-container">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Data de Vencimento ↑</th>
+                                        <th>Cliente</th>
+                                        <th>Fazenda</th>
+                                        <th>Proprietário</th>
+                                        <th>Cidade</th>
+                                        <th>Nº do CAR</th>
+                                        <th>Observações</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="7" className="empty-state">Carregando SIMAF...</td></tr>
+                                    ) : filtered.map(s => (
+                                        <tr key={s.id} onClick={() => setSelected(s)}
+                                            className={selected?.id === s.id ? 'selected' : ''}>
+                                            <td data-label="Vencimento" style={{ color: getDaysUntil(s.data_vencimento) < 30 ? 'var(--accent-red)' : 'inherit' }}>
+                                                {formatDate(s.data_vencimento)}
+                                            </td>
+                                            <td data-label="Cliente" style={{ fontWeight: 500 }}>{s.cliente}</td>
+                                            <td data-label="Fazenda">{s.fazenda}</td>
+                                            <td data-label="Proprietário">{s.proprietario}</td>
+                                            <td data-label="Cidade">{s.cidade}</td>
+                                            <td data-label="CAR" style={{ fontFamily: 'Courier New, monospace', fontSize: 12 }}>{s.n_car}</td>
+                                            <td data-label="Obs" style={{ color: 'var(--text-muted)', maxWidth: 200 }}>{s.observacoes || '—'}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                {selected && (
-                    <div style={{ width: 340 }}>
-                        <div className="data-table-container" style={{ padding: 20 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                                <h3 style={{ fontSize: 14, fontWeight: 700 }}>DETALHES</h3>
-                                <div style={{ display: 'flex', gap: 8 }}>
+                    {selected && (
+                        <div className="detail-panel">
+                            <div className="detail-panel-header">
+                                <h3>DETALHES</h3>
+                                <button className="btn-icon" onClick={() => setSelected(null)}><X size={20} /></button>
+                            </div>
+                            <div className="detail-panel-body">
+                                <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
                                     <button className="btn-icon" onClick={() => {
                                         if (window.confirm('Excluir este SIMAF?')) {
                                             supabase.from('simaf').delete().eq('id', selected.id).then(() => {
@@ -1423,25 +1447,24 @@ function SimafPage() {
                                             });
                                         }
                                     }}><Trash2 size={16} /></button>
-                                    <button className="btn btn-secondary" style={{ padding: '6px 12px' }}><Edit size={14} /> Editar</button>
-                                    <button className="btn-icon" onClick={() => setSelected(null)}><X size={16} /></button>
+                                    <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingSimaf(selected)}><Edit size={14} /> Editar</button>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Cliente</div>
+                                    <div className="field-value">{selected.cliente}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Fazenda</div>
+                                    <div className="field-value">{selected.fazenda}</div>
+                                </div>
+                                <div className="detail-field">
+                                    <div className="field-label">Data de Vencimento</div>
+                                    <div className="field-value">{formatDate(selected.data_vencimento)}</div>
                                 </div>
                             </div>
-                            <div className="detail-field">
-                                <div className="field-label">Cliente</div>
-                                <div className="field-value">{selected.cliente}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Fazenda</div>
-                                <div className="field-value">{selected.fazenda}</div>
-                            </div>
-                            <div className="detail-field">
-                                <div className="field-label">Data de Vencimento</div>
-                                <div className="field-value">{formatDate(selected.data_vencimento)}</div>
-                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
             {showAddModal && <AddSimafModal onClose={() => setShowAddModal(false)} onSave={fetchData} clientes={clientesList} />}
             {editingSimaf && <AddSimafModal initialData={editingSimaf} onClose={() => setEditingSimaf(null)} onSave={() => { fetchData(); setSelected(null); }} clientes={clientesList} />}
@@ -2064,9 +2087,22 @@ function PrecoModal({ onClose, onSave, initialData, defaultTipo }) {
 // MAIN APP
 // =============================================
 function App() {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
     return (
         <Router>
-            <Sidebar />
+            <div className="mobile-header">
+                <div className="sidebar-logo">
+                    <div className="logo-icon">GC</div>
+                    <div className="logo-text">G<span>CAC</span></div>
+                </div>
+                <button className="mobile-menu-btn" onClick={() => setIsSidebarOpen(true)}>
+                    <Menu size={24} />
+                </button>
+            </div>
+
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+
             <main className="main-content">
                 <Routes>
                     <Route path="/" element={<DashboardPage />} />
