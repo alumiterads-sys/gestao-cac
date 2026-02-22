@@ -8,7 +8,6 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, userName, onLogout, role = 'user' }) => {
-    const title = role === 'admin' ? 'Painel do Despachante' : 'Gestão Pessoal CAC';
     const badgeColor = role === 'admin' ? '#f59e0b' : 'var(--accent-primary)';
 
     return (
@@ -20,9 +19,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, userName, onLogout, ro
             <nav className="navbar glass-panel">
                 <div className="container flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <img src="/logo.png" alt="GCAC Logo" className="navbar-logo" />
+                        <img src="/logo.png" alt="G CAC Logo" className="navbar-logo" />
                         <div className="flex flex-col">
-                            <h1 className="navbar-title">{title}</h1>
+                            <h1 className="navbar-title">G CAC - GESTÃO DE DADOS CAC</h1>
                             {role === 'admin' && (
                                 <span style={{ fontSize: '0.65rem', color: badgeColor, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                                     ● ADMINISTRADOR
