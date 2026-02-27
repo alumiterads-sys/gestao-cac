@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import type { UserProfile, Weapon, TrafficGuide, TipoArma, Calibre, TipoAcervo, TipoGuia } from '../types';
 import { formatDateBR, isExpiringSoon, maskCPF, maskPhone, getClassificacaoCalibre, getWeaponLimits } from '../utils';

@@ -5,13 +5,14 @@ import type { UserProfile, Weapon, TrafficGuide, IbamaDoc } from './types';
 
 export const mockUserProfile: UserProfile = {
     id: 'user-1',
+    role: 'user',
     nome: 'João da Silva',
     cpf: '123.456.789-00',
     telefone: '(11) 98765-4321',
     senhaGovBr: '********',
     numeroCR: '987654321',
     atividadesCR: ['Atirador', 'Caçador', 'Colecionador'],
-    vencimentoCR: '2026-03-15', // Vence em menos de 90 dias (Alerta)
+    vencimentoCR: '2026-03-15',
     clubeFiliado: 'Clube de Tiro Exemplo',
     observacoesGlobais: 'Renovação do CR em andamento via despachante.'
 };
@@ -27,7 +28,8 @@ export const mockWeapons: Weapon[] = [
         numeroSerie: 'GLK12345',
         registroSistema: 'SIGMA',
         numeroSigma: 'SIG111222',
-        vencimentoCRAF: '2026-04-10', // Vence em menos de 30 dias (Alerta)
+        tipoFuncionamento: 'Semi-Auto',
+        vencimentoCRAF: '2026-04-10',
         tipoAcervo: 'Atirador'
     },
     {
@@ -40,7 +42,8 @@ export const mockWeapons: Weapon[] = [
         numeroSerie: 'T4567890',
         registroSistema: 'SIGMA',
         numeroSigma: 'SIG333444',
-        vencimentoCRAF: '2028-12-01', // Seguro
+        tipoFuncionamento: 'Repetição',
+        vencimentoCRAF: '2028-12-01',
         tipoAcervo: 'Caçador'
     }
 ];
@@ -75,8 +78,9 @@ export const mockIbamaDoc: IbamaDoc = {
             proprietario: 'João da Silva',
             nomeFazenda: 'Fazenda Santa Tereza',
             numeroCAR: 'CAR-MG-12345',
+            estado: 'MG',
             municipio: 'Belo Horizonte',
-            vencimentoManejo: '2026-02-28' // Vence em menos de 10 dias
+            vencimentoManejo: '2026-02-28'
         }
     ]
 };

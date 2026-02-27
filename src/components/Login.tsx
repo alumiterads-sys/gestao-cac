@@ -158,6 +158,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
         const newUser: UserProfile = {
             id: `user-${Date.now()}`,
+            role: 'user',
             nome: regNome,
             cpf: cpfClean,
             telefone: regContato,
