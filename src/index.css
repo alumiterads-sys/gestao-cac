@@ -775,7 +775,6 @@ select option {
   flex-direction: column;
   gap: 0;
 }
-}
 
 @media (min-width: 768px) {
   .md\:grid-cols-2 {
