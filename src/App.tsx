@@ -163,20 +163,20 @@ export const App: React.FC = () => {
     <Layout userName={user.nome} onLogout={handleLogout} role="user">
       <div className="flex flex-col mx-auto max-w-6xl w-full gap-6">
         <Tabs.Root defaultValue="dashboard" className="w-full">
-          <Tabs.List className="flex border-b border-color-light mb-6 overflow-x-auto pb-px">
-            <Tabs.Trigger value="dashboard" className="px-5 py-3 text-sm font-medium text-muted hover:text-white border-b-2 border-transparent data-[state=active]:border-accent-primary data-[state=active]:text-white">
+          <Tabs.List className="tab-list">
+            <Tabs.Trigger value="dashboard" className="tab-trigger">
               <span className="flex items-center gap-2"><span className="material-icons text-[1.2rem]">dashboard</span> Resumo</span>
             </Tabs.Trigger>
-            <Tabs.Trigger value="armas" className="px-5 py-3 text-sm font-medium text-muted hover:text-white border-b-2 border-transparent data-[state=active]:border-accent-primary data-[state=active]:text-white">
+            <Tabs.Trigger value="armas" className="tab-trigger">
               <span className="flex items-center gap-2"><span className="material-icons text-[1.2rem]">security</span> Acervo EB</span>
             </Tabs.Trigger>
-            <Tabs.Trigger value="ibama" className="px-5 py-3 text-sm font-medium text-muted hover:text-white border-b-2 border-transparent data-[state=active]:border-accent-primary data-[state=active]:text-white">
+            <Tabs.Trigger value="ibama" className="tab-trigger">
               <span className="flex items-center gap-2"><span className="material-icons text-[1.2rem]">nature</span> IBAMA</span>
             </Tabs.Trigger>
-            <Tabs.Trigger value="guias" className="px-5 py-3 text-sm font-medium text-muted hover:text-white border-b-2 border-transparent data-[state=active]:border-accent-primary data-[state=active]:text-white">
+            <Tabs.Trigger value="guias" className="tab-trigger">
               <span className="flex items-center gap-2"><span className="material-icons text-[1.2rem]">description</span> Guias de Tráfego</span>
             </Tabs.Trigger>
-            <Tabs.Trigger value="despachantes" className="px-5 py-3 text-sm font-medium text-muted hover:text-white border-b-2 border-transparent data-[state=active]:border-accent-primary data-[state=active]:text-white ml-auto">
+            <Tabs.Trigger value="despachantes" className="tab-trigger ml-auto">
               <span className="flex items-center gap-2"><span className="material-icons text-[1.2rem]">badge</span> Despachantes</span>
             </Tabs.Trigger>
           </Tabs.List>
