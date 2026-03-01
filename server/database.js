@@ -84,6 +84,20 @@ const db = new sqlite3.Database(dbPath, (err) => {
             if (err) console.error('Error creating ibama_docs table', err.message);
             else console.log('Ibama docs table ready.');
         });
+
+        // Create the dispatcher clients (connections) table
+        db.run(`CREATE TABLE IF NOT EXISTS dispatcher_clients (
+            id TEXT PRIMARY KEY,
+            dispatcherId TEXT NOT NULL,
+            cacId TEXT NOT NULL,
+            status TEXT NOT NULL, -- 'pending_dispatcher', 'pending_cac', 'active'
+            createdAt TEXT NOT NULL,
+            FOREIGN KEY (dispatcherId) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (cacId) REFERENCES users(id) ON DELETE CASCADE
+        )`, (err) => {
+            if (err) console.error('Error creating dispatcher_clients table', err.message);
+            else console.log('Dispatcher clients connectivity table ready.');
+        });
     }
 });
 

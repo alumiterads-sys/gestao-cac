@@ -66,6 +66,23 @@ export interface IbamaDoc {
   propriedades: IbamaProperty[];
 }
 
+// ─── Conexões Despachante x CAC ──────────────────────────────
+
+export type ConnectionStatus = 'pending_dispatcher' | 'pending_cac' | 'active';
+
+export interface DispatcherConnection {
+  id: string;
+  dispatcherId: string;
+  cacId: string;
+  status: ConnectionStatus;
+  createdAt: string;
+  // Campos populados pelos JOINs na API:
+  dispatcherNome?: string;
+  dispatcherCpf?: string;
+  cacNome?: string;
+  cacCpf?: string;
+}
+
 // ─── Tipos do Painel Admin (Despachante) ─────────────────────
 
 export interface Cliente {

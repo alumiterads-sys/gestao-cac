@@ -38,6 +38,14 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     const [sucesso, setSucesso] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
+    // Dynamic Branding based on the URL accessed
+    const isGestao = window.location.hostname.includes('gestao-cac');
+    const appTitle = isGestao ? 'Gestão Despachante CAC' : 'Portal GCAC';
+
+    React.useEffect(() => {
+        document.title = appTitle;
+    }, [appTitle]);
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setErro('');
@@ -193,7 +201,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             <div className="glass-panel p-8 w-full animate-fade-in relative z-10" style={{ maxWidth: isRegistering ? '40rem' : '28rem' }}>
                 <div className="flex flex-col items-center mb-6">
                     <img src="/logo.png" alt="GCAC Logo" className="login-logo mb-4" />
-                    <h2 className="text-2xl font-bold text-center">Gestão Pessoal CAC</h2>
+                    <h2 className="text-2xl font-bold text-center">{appTitle}</h2>
                     <p className="text-muted text-center mt-2">
                         {isRegistering ? 'Cadastre sua nova conta' : isRecovering ? 'Recuperação de Senha' : ''}
                     </p>

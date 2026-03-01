@@ -305,6 +305,94 @@ app.post('/api/ibama', (req, res) => {
 });
 
 // Start Server
+// ==========================================
+// DISPATCHER <-> CAC CONNECTIONS ROUTES
+// ==========================================
+
+// Search user by CPF
+app.get('/api/users/search/:cpf', (req, res) => {
+    const { cpf } = req.params;
+    const cleanCpf = cpf.replace(/\D/g, '');
+    db.get("SELECT id, nome, cpf, role FROM users WHERE cpf = ?", [cleanCpf], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!row) return res.status(404).json({ error: "User not found" });
+        res.json({ data: row });
+    });
+});
+
+// Create an invite
+app.post('/api/connections/invite', (req, res) => {
+    const { id, dispatcherId, cacId, initiatedBy } = req.body;
+
+    // Check if an active or pending connection already exists
+    const checkSql = "SELECT * FROM dispatcher_clients WHERE dispatcherId = ? AND cacId = ?";
+    db.get(checkSql, [dispatcherId, cacId], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (row) {
+            return res.status(409).json({ error: "Connection already exists or is pending", status: row.status });
+        }
+
+        const status = initiatedBy === 'admin' ? 'pending_cac' : 'pending_dispatcher';
+        const createdAt = new Date().toISOString();
+
+        const sql = `INSERT INTO dispatcher_clients (id, dispatcherId, cacId, status, createdAt) VALUES (?, ?, ?, ?, ?)`;
+        db.run(sql, [id, dispatcherId, cacId, status, createdAt], function (insertErr) {
+            if (insertErr) return res.status(500).json({ error: insertErr.message });
+            res.status(201).json({ message: "Invite sent successfully" });
+        });
+    });
+});
+
+// Accept an invite
+app.put('/api/connections/:id/accept', (req, res) => {
+    const { id } = req.params;
+    db.run("UPDATE dispatcher_clients SET status = 'active' WHERE id = ?", [id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: "Connection not found" });
+        res.json({ message: "Connection accepted" });
+    });
+});
+
+// Delete a connection / Reject invite
+app.delete('/api/connections/:id', (req, res) => {
+    const { id } = req.params;
+    db.run("DELETE FROM dispatcher_clients WHERE id = ?", [id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Connection removed successfully" });
+    });
+});
+
+// Get all connection for a Dispatcher
+app.get('/api/connections/dispatcher/:dispatcherId', (req, res) => {
+    const { dispatcherId } = req.params;
+    const sql = `
+        SELECT dc.*, u.nome as cacNome, u.cpf as cacCpf 
+        FROM dispatcher_clients dc
+        JOIN users u ON dc.cacId = u.id
+        WHERE dc.dispatcherId = ?
+    `;
+    db.all(sql, [dispatcherId], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ data: rows });
+    });
+});
+
+// Get all connections for a CAC
+app.get('/api/connections/cac/:cacId', (req, res) => {
+    const { cacId } = req.params;
+    const sql = `
+        SELECT dc.*, u.nome as dispatcherNome, u.cpf as dispatcherCpf 
+        FROM dispatcher_clients dc
+        JOIN users u ON dc.dispatcherId = u.id
+        WHERE dc.cacId = ?
+    `;
+    db.all(sql, [cacId], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ data: rows });
+    });
+});
+
+// Start Server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

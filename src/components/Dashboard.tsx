@@ -6,7 +6,7 @@ interface DashboardProps {
     user: UserProfile;
     weapons: Weapon[];
     guides: TrafficGuide[];
-    ibamaDoc: IbamaDoc;
+    ibamaDoc?: IbamaDoc | null;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ user, weapons, guides, ibamaDoc }) => {
@@ -52,20 +52,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, weapons, guides, iba
     });
 
     // 4. Manejo IBAMA - 10 dias (Para cada propriedade cadastrada)
-    ibamaDoc.propriedades.forEach(prop => {
-        if (isExpiringSoon(prop.vencimentoManejo, 10)) {
-            alertas.push({
-                id: `ibama-${prop.id}`,
-                tipo: 'Manejo',
-                documento: `Autorização Manejo - ${prop.nomeFazenda}`,
-                vencimento: prop.vencimentoManejo,
-                diasRestantes: getDaysRemaining(prop.vencimentoManejo)
-            });
-        }
-    });
+    if (ibamaDoc?.propriedades) {
+        ibamaDoc.propriedades.forEach(prop => {
+            if (isExpiringSoon(prop.vencimentoManejo, 10)) {
+                alertas.push({
+                    id: `ibama-${prop.id}`,
+                    tipo: 'Manejo',
+                    documento: `Autorização Manejo - ${prop.nomeFazenda}`,
+                    vencimento: prop.vencimentoManejo,
+                    diasRestantes: getDaysRemaining(prop.vencimentoManejo)
+                });
+            }
+        });
+    }
 
     // 5. CR do IBAMA (30 dias)
-    if (ibamaDoc.vencimentoCR && isExpiringSoon(ibamaDoc.vencimentoCR, 30)) {
+    if (ibamaDoc?.vencimentoCR && isExpiringSoon(ibamaDoc.vencimentoCR, 30)) {
         alertas.push({
             id: `ibama-cr-${ibamaDoc.id}`,
             tipo: 'CR',
