@@ -21,10 +21,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, userName, onLogout, ro
                     <div className="flex items-center gap-4">
                         <img src="/logo.png" alt="G CAC Logo" className="navbar-logo" />
                         <div className="flex flex-col">
-                            <h1 className="navbar-title">G CAC - GESTÃO DE DADOS CAC</h1>
+                            <h1 style={{ fontSize: '1rem', fontWeight: 600, letterSpacing: '0.05em', color: 'var(--text-primary)', marginBottom: '2px' }}>
+                                G CAC - GESTÃO DE DADOS CAC
+                            </h1>
                             {role === 'admin' && (
-                                <span style={{ fontSize: '0.65rem', color: badgeColor, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                                    ● ADMINISTRADOR
+                                <span style={{ fontSize: '0.85rem', color: badgeColor, fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                                    {userName?.toUpperCase()}
                                 </span>
                             )}
                         </div>
