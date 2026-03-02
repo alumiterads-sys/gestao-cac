@@ -47,7 +47,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
         setMessage({ text: '', type: '' });
         setSearchResult(null);
 
-        if (searchCpf.length < 11) {
+        if (searchCpf.length < 3) {
             showMessage('Digite um CPF válido.', 'error');
             return;
         }
@@ -170,7 +170,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
                             onChange={(e) => setSearchCpf(e.target.value.replace(/\D/g, ''))}
                         />
                     </div>
-                    <button type="submit" className="btn btn-secondary" disabled={isSearching || searchCpf.length < 11}>
+                    <button type="submit" className="btn btn-secondary" disabled={isSearching || searchCpf.length < 3}>
                         {isSearching ? 'Buscando...' : 'Buscar'}
                     </button>
                 </form>
