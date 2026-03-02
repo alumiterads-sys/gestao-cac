@@ -145,8 +145,13 @@ export const App: React.FC = () => {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Painel Admin
-  if (user.role === 'admin') {
+  // Determine se o layout deve ser de Administrador
+  // Gestão CAC deve sempre carregar layout Admin, Portal GCAC o de Usuário CAC.
+  const isGestaoHost = typeof window !== 'undefined' && window.location.hostname.includes('gestao-cac');
+  const isAdminLayout = user.role === 'admin' || isGestaoHost;
+
+  // Painel Admin / Despachante
+  if (isAdminLayout) {
     return (
       <Layout userName={user.nome} onLogout={handleLogout} role="admin">
         <div className="flex flex-col mx-auto max-w-6xl w-full gap-6">
