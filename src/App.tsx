@@ -5,8 +5,6 @@ import { HierarchyView } from './components/HierarchyView';
 import { IbamaView } from './components/IbamaView';
 import { Login } from './components/Login';
 import { ClientsView } from './components/ClientsView';
-import { DispatchersView } from './components/DispatchersView';
-import * as Tabs from '@radix-ui/react-tabs';
 import {
   fetchWeapons, createWeapon, updateWeapon, deleteWeapon,
   fetchGuides, createGuide, deleteGuide,
@@ -155,24 +153,7 @@ export const App: React.FC = () => {
     return (
       <Layout userName={user.nome} onLogout={handleLogout} role="admin">
         <div className="flex flex-col mx-auto max-w-6xl w-full gap-6">
-          <Tabs.Root defaultValue="dashboard" className="w-full">
-            <Tabs.List className="tab-list">
-              <Tabs.Trigger value="dashboard" className="tab-trigger">
-                <span className="flex items-center gap-2"><span className="material-icons text-[1.2rem]">badge</span> Despachantes</span>
-              </Tabs.Trigger>
-              <Tabs.Trigger value="clientes" className="tab-trigger">
-                <span className="flex items-center gap-2"><span className="material-icons text-[1.2rem]">group</span> Clientes</span>
-              </Tabs.Trigger>
-            </Tabs.List>
-
-            <Tabs.Content value="dashboard" className="outline-none">
-              <DispatchersView user={user} />
-            </Tabs.Content>
-
-            <Tabs.Content value="clientes" className="outline-none">
-              <ClientsView user={user} />
-            </Tabs.Content>
-          </Tabs.Root>
+          <ClientsView user={user} />
         </div>
       </Layout>
     );
