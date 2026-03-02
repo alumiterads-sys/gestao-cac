@@ -5,6 +5,7 @@ import { HierarchyView } from './components/HierarchyView';
 import { IbamaView } from './components/IbamaView';
 import { Login } from './components/Login';
 import { ClientsView } from './components/ClientsView';
+import { CacConnectionAlerts } from './components/CacConnectionAlerts';
 import {
   fetchWeapons, createWeapon, updateWeapon, deleteWeapon,
   fetchGuides, createGuide, deleteGuide,
@@ -173,6 +174,8 @@ export const App: React.FC = () => {
   return (
     <Layout userName={user.nome} onLogout={handleLogout} role="user">
       <div className="flex flex-col gap-8">
+        <CacConnectionAlerts user={user} />
+
         <Dashboard
           user={user}
           weapons={weapons}
