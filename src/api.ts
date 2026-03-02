@@ -230,81 +230,158 @@ export async function fetchUserProfileById(id: string): Promise<UserProfile | nu
 }
 
 // ─── DESPACHANTE <-> CAC CONNECTIONS ──────────────────────────
-// These calls hit the Node API, not Supabase directly, to match the architecture in server/index.js
-
-const API_BASE_URL = 'http://localhost:3001/api'; // Localhost backend
+// These calls hit the Supabase 'conexoes' and 'clientes' tables directly.
 
 export async function searchUserByCpf(cpf: string) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/users/search/${cpf}`);
-        if (!response.ok) return null;
-        const result = await response.json();
-        return result.data;
-    } catch (e) {
-        console.error('Error searching user:', e);
+    const cleanCpf = cpf.replace(/\D/g, '');
+    const { data, error } = await supabase
+        .from('clientes')
+        .select('id, nome, cpf, role')
+        .eq('cpf', cleanCpf)
+        .maybeSingle();
+
+    if (error || !data) {
+        console.error('Error searching user:', error?.message);
         return null;
     }
+    return data;
 }
 
 export async function createConnectionInvite(dispatcherId: string, cacId: string, initiatedBy: 'admin' | 'user'): Promise<boolean> {
-    try {
-        const response = await fetch(`${API_BASE_URL}/connections/invite`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id: `conn-${Date.now()}`,
-                dispatcherId,
-                cacId,
-                initiatedBy
-            })
-        });
-        return response.ok;
-    } catch (e) {
-        console.error('Error sending invite:', e);
+    // Check if an active or pending connection already exists
+    const { data: existing } = await supabase
+        .from('conexoes')
+        .select('id')
+        .eq('dispatcher_id', dispatcherId)
+        .eq('cac_id', cacId)
+        .maybeSingle();
+
+    if (existing) {
+        console.error('Connection already exists or is pending');
         return false;
     }
+
+    const status = initiatedBy === 'admin' ? 'pending_cac' : 'pending_dispatcher';
+
+    const { error } = await supabase.from('conexoes').insert({
+        id: `conn-${Date.now()}`,
+        dispatcher_id: dispatcherId,
+        cac_id: cacId,
+        status: status
+    });
+
+    if (error) {
+        console.error('Error sending invite:', error.message);
+        return false;
+    }
+    return true;
 }
 
 export async function acceptConnectionInvite(connectionId: string): Promise<boolean> {
-    try {
-        const response = await fetch(`${API_BASE_URL}/connections/${connectionId}/accept`, { method: 'PUT' });
-        return response.ok;
-    } catch (e) {
-        console.error('Error accepting invite:', e);
+    const { error } = await supabase
+        .from('conexoes')
+        .update({ status: 'active' })
+        .eq('id', connectionId);
+
+    if (error) {
+        console.error('Error accepting invite:', error.message);
         return false;
     }
+    return true;
 }
 
 export async function deleteConnection(connectionId: string): Promise<boolean> {
-    try {
-        const response = await fetch(`${API_BASE_URL}/connections/${connectionId}`, { method: 'DELETE' });
-        return response.ok;
-    } catch (e) {
-        console.error('Error deleting connection:', e);
+    const { error } = await supabase
+        .from('conexoes')
+        .delete()
+        .eq('id', connectionId);
+
+    if (error) {
+        console.error('Error deleting connection:', error.message);
         return false;
     }
+    return true;
 }
 
 export async function fetchDispatcherConnections(dispatcherId: string) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/connections/dispatcher/${dispatcherId}`);
-        if (!response.ok) return [];
-        const result = await response.json();
-        return result.data || [];
-    } catch (e) {
-        console.error('Error fetching dispatcher connections:', e);
+    // Fetch connections where dispatcher_id matches
+    const { data: connectionsData, error: connError } = await supabase
+        .from('conexoes')
+        .select('*')
+        .eq('dispatcher_id', dispatcherId);
+
+    if (connError) {
+        console.error('Error fetching dispatcher connections:', connError.message);
         return [];
     }
+
+    if (!connectionsData || connectionsData.length === 0) return [];
+
+    // Fetch details for all related CACs manually to mimic the JOIN
+    const cacIds = connectionsData.map(c => c.cac_id);
+    const { data: cacProfiles, error: profError } = await supabase
+        .from('clientes')
+        .select('id, nome, cpf')
+        .in('id', cacIds);
+
+    if (profError) {
+        console.error('Error fetching profiles for connections:', profError.message);
+    }
+
+    const profileMap = new Map();
+    cacProfiles?.forEach(p => profileMap.set(p.id, p));
+
+    return connectionsData.map((conn: any) => {
+        const profile = profileMap.get(conn.cac_id) || {};
+        return {
+            id: conn.id,
+            dispatcherId: conn.dispatcher_id,
+            cacId: conn.cac_id,
+            status: conn.status,
+            createdAt: conn.created_at,
+            cacNome: profile.nome || 'Usuário Desconhecido',
+            cacCpf: profile.cpf || ''
+        };
+    });
 }
 
 export async function fetchCacConnections(cacId: string) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/connections/cac/${cacId}`);
-        if (!response.ok) return [];
-        const result = await response.json();
-        return result.data || [];
-    } catch (e) {
-        console.error('Error fetching CAC connections:', e);
+    // Fetch connections where cacId matches
+    const { data: connectionsData, error: connError } = await supabase
+        .from('conexoes')
+        .select('*')
+        .eq('cac_id', cacId);
+
+    if (connError) {
+        console.error('Error fetching CAC connections:', connError.message);
         return [];
     }
+
+    if (!connectionsData || connectionsData.length === 0) return [];
+
+    const dispatcherIds = connectionsData.map(c => c.dispatcher_id);
+    const { data: dispProfiles, error: profError } = await supabase
+        .from('clientes')
+        .select('id, nome, cpf')
+        .in('id', dispatcherIds);
+
+    if (profError) {
+        console.error('Error fetching profiles for dispatcher connections:', profError.message);
+    }
+
+    const profileMap = new Map();
+    dispProfiles?.forEach(p => profileMap.set(p.id, p));
+
+    return connectionsData.map((conn: any) => {
+        const profile = profileMap.get(conn.dispatcher_id) || {};
+        return {
+            id: conn.id,
+            dispatcherId: conn.dispatcher_id,
+            cacId: conn.cac_id,
+            status: conn.status,
+            createdAt: conn.created_at,
+            dispatcherNome: profile.nome || 'Despachante Desconhecido',
+            dispatcherCpf: profile.cpf || ''
+        };
+    });
 }
