@@ -5,7 +5,7 @@
 // ============================================================
 
 import { supabase } from './supabase';
-import type { Weapon, TrafficGuide, IbamaDoc, IbamaProperty, UserProfile } from './types';
+import type { Weapon, TrafficGuide, IbamaDoc, IbamaProperty, UserProfile, ServicoPreco, OrdemServico } from './types';
 
 // ─── WEAPONS (tabela: crafs) ────────────────────────────────
 
@@ -384,4 +384,87 @@ export async function fetchCacConnections(cacId: string) {
             dispatcherCpf: profile.cpf || ''
         };
     });
+}
+
+// ─── SERVIÇOS E PREÇOS (tabela: servicos_precos) ────────────────
+
+export async function fetchServicosPrecos(dispatcherId: string): Promise<ServicoPreco[]> {
+    const { data, error } = await supabase
+        .from('servicos_precos')
+        .select('*')
+        .eq('dispatcher_id', dispatcherId)
+        .order('created_at', { ascending: false });
+
+    if (error) { console.error('fetchServicosPrecos:', error.message); return []; }
+    return data || [];
+}
+
+export async function createServicoPreco(servico: Omit<ServicoPreco, 'id' | 'created_at'>): Promise<boolean> {
+    const { error } = await supabase.from('servicos_precos').insert(servico);
+    if (error) { console.error('createServicoPreco:', error.message); return false; }
+    return true;
+}
+
+export async function updateServicoPreco(id: string, servico: Partial<Omit<ServicoPreco, 'id' | 'created_at' | 'dispatcher_id'>>): Promise<boolean> {
+    const { error } = await supabase.from('servicos_precos').update(servico).eq('id', id);
+    if (error) { console.error('updateServicoPreco:', error.message); return false; }
+    return true;
+}
+
+export async function deleteServicoPreco(id: string): Promise<boolean> {
+    const { error } = await supabase.from('servicos_precos').delete().eq('id', id);
+    if (error) { console.error('deleteServicoPreco:', error.message); return false; }
+    return true;
+}
+
+
+// ─── ORDENS DE SERVIÇO (tabela: ordens_servico) ─────────────────
+
+export async function fetchOrdensServico(dispatcherId: string): Promise<OrdemServico[]> {
+    const { data, error } = await supabase
+        .from('ordens_servico')
+        .select('*')
+        .eq('dispatcher_id', dispatcherId)
+        .order('created_at', { ascending: false });
+
+    if (error) { console.error('fetchOrdensServico:', error.message); return []; }
+
+    if (!data || data.length === 0) return [];
+
+    // Manually join local client names
+    const cacIds = [...new Set(data.map(os => os.cac_id))];
+    const { data: cacProfiles } = await supabase
+        .from('clientes')
+        .select('id, nome')
+        .in('id', cacIds);
+
+    const profileMap = new Map();
+    cacProfiles?.forEach(p => profileMap.set(p.id, p.nome));
+
+    return data.map(os => ({
+        ...os,
+        cac_nome: profileMap.get(os.cac_id) || 'Cliente Desconhecido'
+    }));
+}
+
+export async function createOrdemServico(os: Omit<OrdemServico, 'id' | 'created_at' | 'updated_at' | 'cac_nome'>): Promise<boolean> {
+    const { error } = await supabase.from('ordens_servico').insert(os);
+    if (error) { console.error('createOrdemServico:', error.message); return false; }
+    return true;
+}
+
+export async function updateOrdemServico(id: string, osUpdate: Partial<Omit<OrdemServico, 'id' | 'created_at' | 'dispatcher_id' | 'cac_nome'>>): Promise<boolean> {
+    const { error } = await supabase.from('ordens_servico').update({
+        ...osUpdate,
+        updated_at: new Date().toISOString()
+    }).eq('id', id);
+
+    if (error) { console.error('updateOrdemServico:', error.message); return false; }
+    return true;
+}
+
+export async function deleteOrdemServico(id: string): Promise<boolean> {
+    const { error } = await supabase.from('ordens_servico').delete().eq('id', id);
+    if (error) { console.error('deleteOrdemServico:', error.message); return false; }
+    return true;
 }

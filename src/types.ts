@@ -112,7 +112,33 @@ export interface Servico {
   valor?: number;
   pago_ou_pendente: string;
   forma_pagamento?: string;
-  observacoes?: string;
+  Observacoes?: string;
   n_protocolo?: string;
   created_at?: string;
+}
+
+export interface ServicoPreco {
+  id: string;
+  dispatcher_id: string;
+  nome_servico: string;
+  descricao?: string;
+  preco: number;
+  prazo_estimado_dias?: number;
+  created_at: string;
+}
+
+export interface OrdemServico {
+  id: string;
+  dispatcher_id: string;
+  cac_id: string;
+  servico_id?: string;
+  servico_nome: string;
+  status: 'aberta' | 'em_andamento' | 'aguardando_cliente' | 'concluida' | 'cancelada';
+  valor_cobrado: number;
+  observacoes?: string;
+  created_at: string;
+  updated_at: string;
+
+  // Nomes adicionais carregados via JOIN (se precisarmos)
+  cac_nome?: string;
 }
