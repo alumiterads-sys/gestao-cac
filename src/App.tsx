@@ -6,6 +6,10 @@ import { IbamaView } from './components/IbamaView';
 import { Login } from './components/Login';
 import { ClientsView } from './components/ClientsView';
 import { CacConnectionAlerts } from './components/CacConnectionAlerts';
+import { DashboardDespachante } from './components/DashboardDespachante';
+import { ServicosView } from './components/ServicosView';
+import { OrdensServicoView } from './components/OrdensServicoView';
+import * as Tabs from '@radix-ui/react-tabs';
 import {
   fetchWeapons, createWeapon, updateWeapon, deleteWeapon,
   fetchGuides, createGuide, deleteGuide,
@@ -153,8 +157,63 @@ export const App: React.FC = () => {
   if (isAdminLayout) {
     return (
       <Layout userName={user.nome} onLogout={handleLogout} role="admin">
-        <div className="flex flex-col mx-auto max-w-6xl w-full gap-6">
-          <ClientsView user={user} />
+        <div className="flex flex-col mx-auto max-w-6xl w-full gap-6 animate-fade-in">
+          <Tabs.Root defaultValue="dashboard" className="w-full">
+            <Tabs.List className="flex border-b border-color-light mb-6 overflow-x-auto custom-scrollbar">
+              <Tabs.Trigger
+                value="dashboard"
+                className="px-6 py-3 border-b-2 border-transparent data-[state=active]:border-accent-primary data-[state=active]:text-accent-primary font-bold transition-colors whitespace-nowrap outline-none"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="material-icons text-[1.2rem]">dashboard</span>
+                  Visão Geral
+                </div>
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                value="clientes"
+                className="px-6 py-3 border-b-2 border-transparent data-[state=active]:border-accent-primary data-[state=active]:text-accent-primary font-bold transition-colors whitespace-nowrap outline-none"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="material-icons text-[1.2rem]">people</span>
+                  Clientes
+                </div>
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                value="os"
+                className="px-6 py-3 border-b-2 border-transparent data-[state=active]:border-accent-primary data-[state=active]:text-accent-primary font-bold transition-colors whitespace-nowrap outline-none"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="material-icons text-[1.2rem]">assignment</span>
+                  Ordens de Serviço
+                </div>
+              </Tabs.Trigger>
+              <Tabs.Trigger
+                value="servicos"
+                className="px-6 py-3 border-b-2 border-transparent data-[state=active]:border-accent-primary data-[state=active]:text-accent-primary font-bold transition-colors whitespace-nowrap outline-none"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="material-icons text-[1.2rem]">list_alt</span>
+                  Meus Serviços
+                </div>
+              </Tabs.Trigger>
+            </Tabs.List>
+
+            <Tabs.Content value="dashboard" className="outline-none">
+              <DashboardDespachante user={user} />
+            </Tabs.Content>
+
+            <Tabs.Content value="clientes" className="outline-none">
+              <ClientsView user={user} />
+            </Tabs.Content>
+
+            <Tabs.Content value="os" className="outline-none">
+              <OrdensServicoView user={user} />
+            </Tabs.Content>
+
+            <Tabs.Content value="servicos" className="outline-none">
+              <ServicosView user={user} />
+            </Tabs.Content>
+          </Tabs.Root>
         </div>
       </Layout>
     );
