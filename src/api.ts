@@ -5,7 +5,7 @@
 // ============================================================
 
 import { supabase } from './supabase';
-import type { Weapon, TrafficGuide, IbamaDoc, IbamaProperty, UserProfile, ServicoPreco, OrdemServico } from './types';
+import type { Weapon, TrafficGuide, IbamaDoc, IbamaProperty, UserProfile, ServicoPreco, OrdemServico, ClienteAvulso } from './types';
 
 // ─── WEAPONS (tabela: crafs) ────────────────────────────────
 
@@ -432,19 +432,35 @@ export async function fetchOrdensServico(dispatcherId: string): Promise<OrdemSer
     if (!data || data.length === 0) return [];
 
     // Manually join local client names
-    const cacIds = [...new Set(data.map(os => os.cac_id))];
-    const { data: cacProfiles } = await supabase
-        .from('clientes')
-        .select('id, nome')
-        .in('id', cacIds);
+    const cacIds = [...new Set(data.filter(os => os.cac_id).map(os => os.cac_id))];
+    const avulsoIds = [...new Set(data.filter(os => os.cliente_avulso_id).map(os => os.cliente_avulso_id))];
+
+    const promises = [];
+    if (cacIds.length > 0) {
+        promises.push(supabase.from('clientes').select('id, nome').in('id', cacIds));
+    } else {
+        promises.push(Promise.resolve({ data: [] }));
+    }
+
+    if (avulsoIds.length > 0) {
+        promises.push(supabase.from('clientes_avulsos').select('id, nome').in('id', avulsoIds));
+    } else {
+        promises.push(Promise.resolve({ data: [] }));
+    }
+
+    const [cacProfilesResult, avulsosResult] = await Promise.all(promises);
 
     const profileMap = new Map();
-    cacProfiles?.forEach(p => profileMap.set(p.id, p.nome));
+    cacProfilesResult.data?.forEach(p => profileMap.set(p.id, p.nome));
+    avulsosResult.data?.forEach(p => profileMap.set(p.id, p.nome + ' (Manual)'));
 
-    return data.map(os => ({
-        ...os,
-        cac_nome: profileMap.get(os.cac_id) || 'Cliente Desconhecido'
-    }));
+    return data.map(os => {
+        const targetId = os.cac_id || os.cliente_avulso_id;
+        return {
+            ...os,
+            cac_nome: profileMap.get(targetId) || 'Cliente Desconhecido'
+        };
+    });
 }
 
 export async function createOrdemServico(os: Omit<OrdemServico, 'id' | 'created_at' | 'updated_at' | 'cac_nome'>): Promise<boolean> {
@@ -466,5 +482,55 @@ export async function updateOrdemServico(id: string, osUpdate: Partial<Omit<Orde
 export async function deleteOrdemServico(id: string): Promise<boolean> {
     const { error } = await supabase.from('ordens_servico').delete().eq('id', id);
     if (error) { console.error('deleteOrdemServico:', error.message); return false; }
+    return true;
+}
+
+// ─── DASHBOARD DESPACHANTE (Busca em Massa) ────────────────
+
+export async function fetchClientsDashboardData(cacIds: string[]) {
+    if (cacIds.length === 0) return { profiles: [], weapons: [], guides: [], ibamaDocs: [] };
+
+    const [
+        { data: profiles },
+        { data: weapons },
+        { data: guides },
+        { data: ibamaDocs }
+    ] = await Promise.all([
+        supabase.from('clientes').select('id, nome, numero_cr, vencimento_cr').in('id', cacIds),
+        supabase.from('crafs').select('id, cliente_id, fabricante, modelo_arma, vencimento_craf').in('cliente_id', cacIds),
+        supabase.from('guias').select('id, cliente_id, arma_id, vencimento_gt:data_vencimento').in('cliente_id', cacIds),
+        supabase.from('ibama').select('id, cliente_id, cr_ibama, venc_cr_ibama').in('cliente_id', cacIds)
+    ]);
+
+    return {
+        profiles: profiles || [],
+        weapons: weapons || [],
+        guides: guides || [],
+        ibamaDocs: ibamaDocs || []
+    };
+}
+
+// ─── CLIENTES AVULSOS (Offline) ─────────────────────────────────
+
+export async function fetchClientesAvulsos(dispatcherId: string): Promise<ClienteAvulso[]> {
+    const { data, error } = await supabase
+        .from('clientes_avulsos')
+        .select('*')
+        .eq('dispatcher_id', dispatcherId)
+        .order('nome', { ascending: true });
+
+    if (error) { console.error('fetchClientesAvulsos:', error.message); return []; }
+    return data || [];
+}
+
+export async function createClienteAvulso(cliente: Omit<ClienteAvulso, 'id' | 'created_at'>): Promise<boolean> {
+    const { error } = await supabase.from('clientes_avulsos').insert(cliente);
+    if (error) { console.error('createClienteAvulso:', error.message); return false; }
+    return true;
+}
+
+export async function deleteClienteAvulso(id: string): Promise<boolean> {
+    const { error } = await supabase.from('clientes_avulsos').delete().eq('id', id);
+    if (error) { console.error('deleteClienteAvulso:', error.message); return false; }
     return true;
 }

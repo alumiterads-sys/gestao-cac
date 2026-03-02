@@ -117,6 +117,16 @@ export interface Servico {
   created_at?: string;
 }
 
+export interface ClienteAvulso {
+  id: string;
+  dispatcher_id: string;
+  nome: string;
+  cpf: string;
+  telefone: string;
+  senha_gov_br?: string;
+  created_at: string;
+}
+
 export interface ServicoPreco {
   id: string;
   dispatcher_id: string;
@@ -130,7 +140,8 @@ export interface ServicoPreco {
 export interface OrdemServico {
   id: string;
   dispatcher_id: string;
-  cac_id: string;
+  cac_id?: string;
+  cliente_avulso_id?: string;
   servico_id?: string;
   servico_nome: string;
   status: 'aberta' | 'em_andamento' | 'aguardando_cliente' | 'concluida' | 'cancelada';

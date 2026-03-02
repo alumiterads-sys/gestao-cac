@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import type { UserProfile, OrdemServico, DispatcherConnection, ServicoPreco } from '../types';
+import type { UserProfile, OrdemServico, DispatcherConnection, ServicoPreco, ClienteAvulso } from '../types';
 import {
     fetchOrdensServico, createOrdemServico, updateOrdemServico, deleteOrdemServico,
-    fetchDispatcherConnections, fetchServicosPrecos
+    fetchDispatcherConnections, fetchServicosPrecos, fetchClientesAvulsos
 } from '../api';
 
 interface OrdensServicoViewProps {
@@ -12,13 +12,14 @@ interface OrdensServicoViewProps {
 export const OrdensServicoView: React.FC<OrdensServicoViewProps> = ({ user }) => {
     const [ordens, setOrdens] = useState<OrdemServico[]>([]);
     const [clientes, setClientes] = useState<DispatcherConnection[]>([]);
+    const [clientesAvulsos, setClientesAvulsos] = useState<ClienteAvulso[]>([]);
     const [servicos, setServicos] = useState<ServicoPreco[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
     // Form state
     const [isEditing, setIsEditing] = useState(false);
     const [currentId, setCurrentId] = useState<string | null>(null);
-    const [cacId, setCacId] = useState('');
+    const [selectedClientValue, setSelectedClientValue] = useState(''); // Format: "app:ID" or "offline:ID"
     const [servicoId, setServicoId] = useState('');
     const [servicoNomeCust, setServicoNomeCust] = useState('');
     const [valor, setValor] = useState<number>(0);
@@ -27,14 +28,16 @@ export const OrdensServicoView: React.FC<OrdensServicoViewProps> = ({ user }) =>
 
     const loadData = async () => {
         setIsLoading(true);
-        const [osData, connData, servData] = await Promise.all([
+        const [osData, connData, servData, avulsosData] = await Promise.all([
             fetchOrdensServico(user.id),
             fetchDispatcherConnections(user.id),
-            fetchServicosPrecos(user.id)
+            fetchServicosPrecos(user.id),
+            fetchClientesAvulsos(user.id)
         ]);
 
         setOrdens(osData);
         setClientes(connData.filter(c => c.status === 'active'));
+        setClientesAvulsos(avulsosData);
         setServicos(servData);
         setIsLoading(false);
     };
@@ -58,7 +61,7 @@ export const OrdensServicoView: React.FC<OrdensServicoViewProps> = ({ user }) =>
     const resetForm = () => {
         setIsEditing(false);
         setCurrentId(null);
-        setCacId('');
+        setSelectedClientValue('');
         setServicoId('');
         setServicoNomeCust('');
         setValor(0);
@@ -69,7 +72,7 @@ export const OrdensServicoView: React.FC<OrdensServicoViewProps> = ({ user }) =>
     const handleEdit = (os: OrdemServico) => {
         setIsEditing(true);
         setCurrentId(os.id);
-        setCacId(os.cac_id);
+        setSelectedClientValue(os.cliente_avulso_id ? `offline:${os.cliente_avulso_id}` : `app:${os.cac_id}`);
         setServicoId(os.servico_id || '');
         setServicoNomeCust(os.servico_nome);
         setValor(os.valor_cobrado);
@@ -86,7 +89,7 @@ export const OrdensServicoView: React.FC<OrdensServicoViewProps> = ({ user }) =>
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!cacId) {
+        if (!selectedClientValue) {
             alert('Selecione um cliente.');
             return;
         }
@@ -95,10 +98,14 @@ export const OrdensServicoView: React.FC<OrdensServicoViewProps> = ({ user }) =>
             return;
         }
 
+        const isOffline = selectedClientValue.startsWith('offline:');
+        const idValue = selectedClientValue.split(':')[1];
+
         const payload = {
             dispatcher_id: user.id,
-            cac_id: cacId,
-            servico_id: servicoId || undefined,
+            cac_id: isOffline ? null : idValue,
+            cliente_avulso_id: isOffline ? idValue : null,
+            servico_id: servicoId || null,
             servico_nome: servicoNomeCust,
             status,
             valor_cobrado: valor,
@@ -106,9 +113,9 @@ export const OrdensServicoView: React.FC<OrdensServicoViewProps> = ({ user }) =>
         };
 
         if (isEditing && currentId) {
-            await updateOrdemServico(currentId, payload);
+            await updateOrdemServico(currentId, payload as any);
         } else {
-            await createOrdemServico(payload);
+            await createOrdemServico(payload as any);
         }
 
         resetForm();
@@ -154,14 +161,21 @@ export const OrdensServicoView: React.FC<OrdensServicoViewProps> = ({ user }) =>
                             <label className="text-sm font-bold block mb-1">Cliente (CAC) *</label>
                             <select
                                 className="w-full bg-black bg-opacity-50"
-                                value={cacId}
-                                onChange={e => setCacId(e.target.value)}
+                                value={selectedClientValue}
+                                onChange={e => setSelectedClientValue(e.target.value)}
                                 required
                             >
                                 <option value="">-- Selecione o Cliente --</option>
-                                {clientes.map(c => (
-                                    <option key={c.cacId} value={c.cacId}>{c.cacNome} (CPF: {c.cacCpf})</option>
-                                ))}
+                                <optgroup label="App G-CAC">
+                                    {clientes.map(c => (
+                                        <option key={c.cacId} value={`app:${c.cacId}`}>{c.cacNome} (CPF: {c.cacCpf})</option>
+                                    ))}
+                                </optgroup>
+                                <optgroup label="Manuais (Offline)">
+                                    {clientesAvulsos.map(c => (
+                                        <option key={c.id} value={`offline:${c.id}`}>{c.nome} (CPF: {c.cpf})</option>
+                                    ))}
+                                </optgroup>
                             </select>
                         </div>
                         <div className="flex-1">
