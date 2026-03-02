@@ -5,7 +5,7 @@
 // ============================================================
 
 import { supabase } from './supabase';
-import type { Weapon, TrafficGuide, IbamaDoc, IbamaProperty, UserProfile, ServicoPreco, OrdemServico, ClienteAvulso } from './types';
+import type { Weapon, TrafficGuide, IbamaDoc, IbamaProperty, UserProfile, ServicoPreco, OrdemServico, ClienteAvulso, AvulsoCraf, AvulsoGuia, AvulsoSimaf } from './types';
 
 // ─── WEAPONS (tabela: crafs) ────────────────────────────────
 
@@ -532,5 +532,65 @@ export async function createClienteAvulso(cliente: Omit<ClienteAvulso, 'id' | 'c
 export async function deleteClienteAvulso(id: string): Promise<boolean> {
     const { error } = await supabase.from('clientes_avulsos').delete().eq('id', id);
     if (error) { console.error('deleteClienteAvulso:', error.message); return false; }
+    return true;
+}
+
+// ─── DOCUMENTOS DE CLIENTES "SEM APP" ──────────────────────
+
+// Armas
+export async function fetchAvulsoCrafs(avulsoId: string): Promise<AvulsoCraf[]> {
+    const { data, error } = await supabase.from('avulso_crafs').select('*').eq('avulso_id', avulsoId).order('created_at', { ascending: false });
+    if (error) { console.error('fetchAvulsoCrafs:', error.message); return []; }
+    return data || [];
+}
+
+export async function createAvulsoCraf(craf: Omit<AvulsoCraf, 'id' | 'created_at'>): Promise<boolean> {
+    const { error } = await supabase.from('avulso_crafs').insert(craf);
+    if (error) { console.error('createAvulsoCraf:', error.message); return false; }
+    return true;
+}
+
+export async function deleteAvulsoCraf(id: string): Promise<boolean> {
+    const { error } = await supabase.from('avulso_crafs').delete().eq('id', id);
+    if (error) { console.error('deleteAvulsoCraf:', error.message); return false; }
+    return true;
+}
+
+// Guias de Tráfego
+export async function fetchAvulsoGuias(avulsoId: string): Promise<AvulsoGuia[]> {
+    const { data, error } = await supabase.from('avulso_guias').select('*').eq('avulso_id', avulsoId).order('created_at', { ascending: false });
+    if (error) { console.error('fetchAvulsoGuias:', error.message); return []; }
+    return data || [];
+}
+
+export async function createAvulsoGuia(guia: Omit<AvulsoGuia, 'id' | 'created_at'>): Promise<boolean> {
+    const { error } = await supabase.from('avulso_guias').insert(guia);
+    if (error) { console.error('createAvulsoGuia:', error.message); return false; }
+    return true;
+}
+
+export async function deleteAvulsoGuia(id: string): Promise<boolean> {
+    const { error } = await supabase.from('avulso_guias').delete().eq('id', id);
+    if (error) { console.error('deleteAvulsoGuia:', error.message); return false; }
+    return true;
+}
+
+// SIMAF / IBAMA
+export async function fetchAvulsoSimaf(avulsoId: string): Promise<AvulsoSimaf | null> {
+    const { data, error } = await supabase.from('avulso_simaf').select('*').eq('avulso_id', avulsoId).maybeSingle();
+    if (error) { console.error('fetchAvulsoSimaf:', error.message); return null; }
+    return data || null;
+}
+
+export async function saveAvulsoSimaf(simaf: Omit<AvulsoSimaf, 'id' | 'created_at'>): Promise<boolean> {
+    const { error } = await supabase.from('avulso_simaf').upsert(simaf, { onConflict: 'avulso_id' });
+    if (error) { console.error('saveAvulsoSimaf:', error.message); return false; }
+    return true;
+}
+
+// Update profile of a cliente_avulso
+export async function updateClienteAvulso(id: string, data: Partial<Omit<ClienteAvulso, 'id' | 'created_at' | 'dispatcher_id'>>): Promise<boolean> {
+    const { error } = await supabase.from('clientes_avulsos').update(data).eq('id', id);
+    if (error) { console.error('updateClienteAvulso:', error.message); return false; }
     return true;
 }

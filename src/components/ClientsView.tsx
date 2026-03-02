@@ -6,6 +6,7 @@ import {
     fetchClientesAvulsos, createClienteAvulso, deleteClienteAvulso
 } from '../api';
 import { Dashboard } from './Dashboard';
+import { ClienteAvulsoPanel } from './ClienteAvulsoPanel';
 
 interface ClientsViewProps {
     user: UserProfile;
@@ -30,6 +31,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
     const [clientesAvulsos, setClientesAvulsos] = useState<ClienteAvulso[]>([]);
     const [isAddingClient, setIsAddingClient] = useState(false);
     const [clientType, setClientType] = useState<'app' | 'offline'>('app');
+    const [viewingAvulso, setViewingAvulso] = useState<ClienteAvulso | null>(null);
 
     // Avulso Form State
     const [avulsoNome, setAvulsoNome] = useState('');
@@ -210,6 +212,14 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
 
     return (
         <div className="flex flex-col gap-6 animate-fade-in relative">
+            {/* PAINEL CLIENTE SEM APP */}
+            {viewingAvulso && (
+                <ClienteAvulsoPanel
+                    cliente={viewingAvulso}
+                    onClose={() => setViewingAvulso(null)}
+                    onUpdated={() => { loadConnections(); setViewingAvulso(null); }}
+                />
+            )}
             <div className="flex justify-between items-center mb-2">
                 <h2 className="text-xl font-bold">Gerenciamento de Clientes (CACs)</h2>
             </div>
@@ -259,7 +269,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
                                 onClick={() => setClientType('offline')}
                             >
                                 <span className="material-icons align-middle mr-2">edit_document</span>
-                                Cliente Manual (Offline)
+                                Cliente Sem App
                             </button>
                         </div>
 
@@ -391,7 +401,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
                                             {client.type === 'app' ? (
                                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-success bg-opacity-20 text-success border border-success">APP GCAC</span>
                                             ) : (
-                                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-warning bg-opacity-20 text-warning border border-warning">OFFLINE</span>
+                                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-warning bg-opacity-20 text-warning border border-warning">Sem App</span>
                                             )}
                                         </div>
                                         <p className="text-xs text-muted mt-0.5">
@@ -425,14 +435,22 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
                                             </button>
                                         </>
                                     ) : (
-                                        <button
-                                            className="btn btn-outline text-danger border-danger hover:bg-danger hover:text-white flex justify-center px-4"
-                                            onClick={() => handleDeleteAvulso(client.id)}
-                                            title="Excluir Definitivamente"
-                                        >
-                                            <span className="material-icons text-sm mr-1">delete</span>
-                                            Excluir
-                                        </button>
+                                        <>
+                                            <button
+                                                className="btn btn-secondary flex-1 md:flex-none justify-center text-sm"
+                                                onClick={() => setViewingAvulso(clientesAvulsos.find(av => av.id === client.id) || null)}
+                                            >
+                                                <span className="material-icons text-sm mr-1">folder_open</span>
+                                                Ver Cadastro
+                                            </button>
+                                            <button
+                                                className="btn btn-outline text-danger border-danger hover:bg-danger hover:text-white flex justify-center px-3"
+                                                onClick={() => handleDeleteAvulso(client.id)}
+                                                title="Excluir Definitivamente"
+                                            >
+                                                <span className="material-icons text-sm">delete</span>
+                                            </button>
+                                        </>
                                     )}
                                 </div>
                             </div>

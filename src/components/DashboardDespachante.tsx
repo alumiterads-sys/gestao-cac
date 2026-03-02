@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { UserProfile, OrdemServico, DispatcherConnection } from '../types';
-import { fetchOrdensServico, fetchDispatcherConnections, fetchClientsDashboardData } from '../api';
+import { fetchOrdensServico, fetchDispatcherConnections, fetchClientsDashboardData, fetchClientesAvulsos } from '../api';
 import { isExpiringSoon, formatDateBR, getDaysRemaining } from '../utils';
 
 interface DashboardDespachanteProps {
@@ -10,6 +10,7 @@ interface DashboardDespachanteProps {
 export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user }) => {
     const [ordens, setOrdens] = useState<OrdemServico[]>([]);
     const [clientes, setClientes] = useState<DispatcherConnection[]>([]);
+    const [clientesAvulsos, setClientesAvulsos] = useState<number>(0);
     const [alertas, setAlertas] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -22,6 +23,8 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
 
         setOrdens(osData);
         setClientes(connData);
+        const avulsoData = await fetchClientesAvulsos(user.id);
+        setClientesAvulsos(avulsoData.length);
 
         // Alertas de Vencimento dos Clientes Ativos
         const newAlertas: any[] = [];
@@ -84,6 +87,7 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
     }, [user.id]);
 
     const activeClientsCount = clientes.filter(c => c.status === 'active').length;
+    const totalClientsCount = activeClientsCount + clientesAvulsos;
     const pendingClientsCount = clientes.filter(c => c.status === 'pending_cac').length;
 
     const openOrdens = ordens.filter(os => os.status !== 'concluida' && os.status !== 'cancelada');
@@ -107,15 +111,19 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
                 <div className="glass-panel p-5 flex flex-col justify-between border-l-4 border-l-success relative overflow-hidden">
                     <div className="flex justify-between items-start z-10">
                         <div className="flex flex-col">
-                            <p className="text-sm font-bold text-success mb-1">Clientes Ativos</p>
-                            <h3 className="text-4xl font-black mt-1 tracking-tight">{activeClientsCount}</h3>
+                            <p className="text-sm font-bold text-success mb-1">Total de Clientes</p>
+                            <h3 className="text-4xl font-black mt-1 tracking-tight">{totalClientsCount}</h3>
                         </div>
                         <div className="p-3 bg-success bg-opacity-20 rounded-xl">
                             <span className="material-icons text-success text-3xl">people</span>
                         </div>
                     </div>
                     <div className="mt-4 z-10">
-                        <p className="text-xs text-muted leading-tight">Total de vínculos<br />no sistema GCAC</p>
+                        <p className="text-xs text-muted leading-tight">
+                            <span className="text-success font-bold">{activeClientsCount} via App</span>
+                            {' · '}
+                            <span className="text-warning font-bold">{clientesAvulsos} Sem App</span>
+                        </p>
                     </div>
                 </div>
 

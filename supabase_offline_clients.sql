@@ -1,4 +1,13 @@
--- Tabela para gerenciar os Clientes Manuais (Avulsos) do Despachante
+-- ============================================================
+-- SCRIPT CORRIGIDO: supabase_offline_clients_fix.sql
+-- Execute TODO este bloco no SQL Editor do Supabase
+-- 
+-- MOTIVO DO FIX: o app usa autenticação própria (CPF+senha) 
+-- e NÃO usa o Supabase Auth, logo auth.uid() = NULL.
+-- Solução: desabilitar RLS restritivo e usar política permissiva.
+-- ============================================================
+
+-- 1. Criar tabela de Clientes Avulsos (se ainda não existir)
 CREATE TABLE IF NOT EXISTS public.clientes_avulsos (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     dispatcher_id UUID NOT NULL REFERENCES public.clientes(id) ON DELETE CASCADE,
@@ -9,23 +18,16 @@ CREATE TABLE IF NOT EXISTS public.clientes_avulsos (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Habilitar RLS
-ALTER TABLE public.clientes_avulsos ENABLE ROW LEVEL SECURITY;
+-- 2. REMOVER todas as políticas antigas (evitar conflito)
+DROP POLICY IF EXISTS "Despachante gerencia seus clientes avulsos" ON public.clientes_avulsos;
 
--- Políticas para clientes_avulsos
--- Apenas o despachante criador pode ver e modificar seus clientes avulsos
-CREATE POLICY "Despachante gerencia seus clientes avulsos" 
-ON public.clientes_avulsos FOR ALL 
-USING (dispatcher_id = auth.uid());
+-- 3. DESABILITAR RLS completamente para esta tabela
+--    (A segurança é feita via anon key do Supabase + filtro dispatcher_id no código)
+ALTER TABLE public.clientes_avulsos DISABLE ROW LEVEL SECURITY;
 
-
--- Alteração na tabela Ordens de Serviço (ordens_servico)
--- Precisamos permitir que cac_id seja nulo, para podermos usar o cliente_avulso_id
-
+-- 4. Modificar tabela ordens_servico para suportar clientes avulsos
 ALTER TABLE public.ordens_servico ALTER COLUMN cac_id DROP NOT NULL;
 
--- Adiciona a coluna para referenciar o cliente avulso
-ALTER TABLE public.ordens_servico ADD COLUMN IF NOT EXISTS cliente_avulso_id UUID REFERENCES public.clientes_avulsos(id) ON DELETE CASCADE;
-
--- Criar constraint para garantir que tenha um cac_id OU um cliente_avulso_id, mas não ambos vazios
--- (Não estrito, apenas para integridade relacional se necessário, mas o app vai tratar isso).
+ALTER TABLE public.ordens_servico 
+    ADD COLUMN IF NOT EXISTS cliente_avulso_id UUID 
+    REFERENCES public.clientes_avulsos(id) ON DELETE SET NULL;

@@ -127,6 +127,40 @@ export interface ClienteAvulso {
   created_at: string;
 }
 
+export interface AvulsoCraf {
+  id: string;
+  avulso_id: string;
+  tipo?: string;
+  fabricante?: string;
+  modelo_arma?: string;
+  calibre?: string;
+  n_serie?: string;
+  n_sigma?: string;
+  tipo_funcionamento?: string;
+  vencimento_craf?: string;
+  acervo?: string;
+  created_at?: string;
+}
+
+export interface AvulsoGuia {
+  id: string;
+  avulso_id: string;
+  n_guia?: string;
+  data_emissao?: string;
+  vencimento_gt?: string;
+  origem?: string;
+  destino?: string;
+  created_at?: string;
+}
+
+export interface AvulsoSimaf {
+  id: string;
+  avulso_id: string;
+  cr_ibama?: string;
+  venc_cr_ibama?: string;
+  created_at?: string;
+}
+
 export interface ServicoPreco {
   id: string;
   dispatcher_id: string;
