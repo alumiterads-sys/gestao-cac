@@ -44,7 +44,7 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
             });
             // 2. CRAF
             weapons.forEach((w: any) => {
-                if (w.vencimento_craf && isExpiringSoon(w.vencimento_craf, 30)) {
+                if (w.vencimento_craf && isExpiringSoon(w.vencimento_craf, 60)) {
                     const prof = profiles.find((p: any) => p.id === w.cliente_id);
                     newAlertas.push({
                         id: `craf-${w.id}`, clienteNome: prof?.nome || 'Desconhecido', tipo: 'CRAF',
@@ -54,7 +54,7 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
             });
             // 3. GT
             guides.forEach((g: any) => {
-                if (g.vencimento_gt && isExpiringSoon(g.vencimento_gt, 15)) {
+                if (g.vencimento_gt && isExpiringSoon(g.vencimento_gt, 30)) {
                     const prof = profiles.find((p: any) => p.id === g.cliente_id);
                     newAlertas.push({
                         id: `gt-${g.id}`, clienteNome: prof?.nome || 'Desconhecido', tipo: 'GT',

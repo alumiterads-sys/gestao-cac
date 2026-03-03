@@ -26,7 +26,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, weapons, guides, iba
 
     // 2. CRAF das Armas (30 dias)
     weapons.forEach(arma => {
-        if (isExpiringSoon(arma.vencimentoCRAF, 30)) {
+        if (isExpiringSoon(arma.vencimentoCRAF, 60)) {
             alertas.push({
                 id: `craf-${arma.id}`,
                 tipo: 'CRAF',
@@ -39,7 +39,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, weapons, guides, iba
 
     // 3. Guias de Tráfego (GT) - 15 dias
     guides.forEach(gt => {
-        if (isExpiringSoon(gt.vencimentoGT, 15)) {
+        if (isExpiringSoon(gt.vencimentoGT, 30)) {
             const armaOrigem = weapons.find(w => w.id === gt.weaponId);
             alertas.push({
                 id: `gt-${gt.id}`,

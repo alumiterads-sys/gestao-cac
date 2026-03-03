@@ -276,7 +276,7 @@ export const ClienteAvulsoPanel: React.FC<ClienteAvulsoPanelProps> = ({ cliente,
                                 ) : (
                                     <div className="flex flex-col gap-3">
                                         {crafs.map(c => {
-                                            const vencendo = c.vencimento_craf && isExpiringSoon(c.vencimento_craf, 30);
+                                            const vencendo = c.vencimento_craf && isExpiringSoon(c.vencimento_craf, 60);
                                             return (
                                                 <div key={c.id} className={`p-4 border rounded-md bg-black bg-opacity-20 flex justify-between items-center gap-4 ${vencendo ? 'border-danger border-opacity-60' : 'border-color-light'}`}>
                                                     <div>
@@ -349,7 +349,7 @@ export const ClienteAvulsoPanel: React.FC<ClienteAvulsoPanelProps> = ({ cliente,
                                 ) : (
                                     <div className="flex flex-col gap-3">
                                         {guias.map(g => {
-                                            const vencendo = g.vencimento_gt && isExpiringSoon(g.vencimento_gt, 15);
+                                            const vencendo = g.vencimento_gt && isExpiringSoon(g.vencimento_gt, 30);
                                             return (
                                                 <div key={g.id} className={`p-4 border rounded-md bg-black bg-opacity-20 flex justify-between items-center gap-4 ${vencendo ? 'border-warning border-opacity-60' : 'border-color-light'}`}>
                                                     <div>

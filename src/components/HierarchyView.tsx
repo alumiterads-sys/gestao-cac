@@ -187,6 +187,11 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
     // ── Guide form ─────────────────────────────────────────────
     const [addingGuideForWeapon, setAddingGuideForWeapon] = useState<string | null>(null);
     const [newGuide, setNewGuide] = useState<Partial<TrafficGuide>>({ tipoGuia: 'Tiro Desportivo', vencimentoGT: '', destino: '', observacoes: '' });
+    // Seletor Estado/Cidade para guias Caça
+    const [guiaEstados, setGuiaEstados] = useState<{ sigla: string; nome: string }[]>([]);
+    const [guiaMunicipios, setGuiaMunicipios] = useState<{ nome: string }[]>([]);
+    const [guiaEstado, setGuiaEstado] = useState('');
+    const [guiaCidade, setGuiaCidade] = useState('');
 
     // ── Confirm dialogs ────────────────────────────────────────
     const [confirmDeleteWeapon, setConfirmDeleteWeapon] = useState<string | null>(null);
@@ -307,19 +312,41 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
     };
 
     // ── Guide ──────────────────────────────────────────────────
+    const isCacaGuia = (tipo?: string) => tipo?.includes('Caça');
+
+    React.useEffect(() => {
+        fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome')
+            .then(r => r.json()).then(setGuiaEstados).catch(() => { });
+    }, []);
+
+    React.useEffect(() => {
+        if (guiaEstado) {
+            setGuiaCidade('');
+            fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${guiaEstado}/municipios?orderBy=nome`)
+                .then(r => r.json()).then(setGuiaMunicipios).catch(() => { });
+        } else {
+            setGuiaMunicipios([]);
+        }
+    }, [guiaEstado]);
+
     const handleSaveGuide = (e: React.FormEvent) => {
         e.preventDefault();
+        const destino = isCacaGuia(newGuide.tipoGuia)
+            ? (guiaCidade && guiaEstado ? `${guiaCidade} - ${guiaEstado}` : newGuide.destino || '')
+            : newGuide.destino || '';
         const g: TrafficGuide = {
             id: crypto.randomUUID(),
             weaponId: addingGuideForWeapon!,
             tipoGuia: newGuide.tipoGuia as TipoGuia,
             vencimentoGT: newGuide.vencimentoGT || '',
-            destino: newGuide.destino || '',
+            destino,
             observacoes: newGuide.observacoes || ''
         };
         onAddGuide(g);
         setAddingGuideForWeapon(null);
         setNewGuide({ tipoGuia: 'Tiro Desportivo', vencimentoGT: '', destino: '', observacoes: '' });
+        setGuiaEstado('');
+        setGuiaCidade('');
     };
 
     const doDeleteGuide = () => {
@@ -486,7 +513,7 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
                 {weapons.map(arma => {
                     const isExpanded = expandedWeaponId === arma.id;
                     const armaGuides = guides.filter(g => g.weaponId === arma.id);
-                    const crafAlert = isExpiringSoon(arma.vencimentoCRAF, 30);
+                    const crafAlert = isExpiringSoon(arma.vencimentoCRAF, 60);
                     const isEditing = editingWeaponId === arma.id;
                     const isAddingGuide = addingGuideForWeapon === arma.id;
                     const classsificacao = getClassificacaoCalibre(arma.calibre, arma.tipo, arma.modelo, arma.tipoFuncionamento);
@@ -542,7 +569,7 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
                                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                                     <div>
                                                         <label className="text-sm font-bold block mb-1">Tipo de Guia *</label>
-                                                        <select required value={newGuide.tipoGuia} onChange={e => setNewGuide(p => ({ ...p, tipoGuia: e.target.value as TipoGuia }))}>
+                                                        <select required value={newGuide.tipoGuia} onChange={e => { setNewGuide(p => ({ ...p, tipoGuia: e.target.value as TipoGuia, destino: '' })); setGuiaEstado(''); setGuiaCidade(''); }}>
                                                             {TIPOS_GUIA.map(t => <option key={t} value={t}>{t}</option>)}
                                                         </select>
                                                     </div>
@@ -550,10 +577,29 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
                                                         <label className="text-sm font-bold block mb-1">Vencimento *</label>
                                                         <input type="date" required value={newGuide.vencimentoGT} onChange={e => setNewGuide(p => ({ ...p, vencimentoGT: e.target.value }))} />
                                                     </div>
-                                                    <div className="md:col-span-2">
-                                                        <label className="text-sm font-bold block mb-1">Destino *</label>
-                                                        <input type="text" required placeholder="Ex: Clube de Tiro São Paulo - SP" value={newGuide.destino} onChange={e => setNewGuide(p => ({ ...p, destino: e.target.value }))} />
-                                                    </div>
+                                                    {isCacaGuia(newGuide.tipoGuia) ? (
+                                                        <>
+                                                            <div>
+                                                                <label className="text-sm font-bold block mb-1">Estado (UF) *</label>
+                                                                <select required value={guiaEstado} onChange={e => setGuiaEstado(e.target.value)}>
+                                                                    <option value="" disabled>Selecione o Estado</option>
+                                                                    {guiaEstados.map(est => <option key={est.sigla} value={est.sigla}>{est.nome} ({est.sigla})</option>)}
+                                                                </select>
+                                                            </div>
+                                                            <div>
+                                                                <label className="text-sm font-bold block mb-1">Município (Destino) *</label>
+                                                                <select required value={guiaCidade} onChange={e => setGuiaCidade(e.target.value)} disabled={!guiaEstado || guiaMunicipios.length === 0}>
+                                                                    <option value="" disabled>{guiaEstado ? 'Selecione o Município' : 'Selecione o Estado primeiro'}</option>
+                                                                    {guiaMunicipios.map(m => <option key={m.nome} value={m.nome}>{m.nome}</option>)}
+                                                                </select>
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <div className="md:col-span-2">
+                                                            <label className="text-sm font-bold block mb-1">Destino *</label>
+                                                            <input type="text" required placeholder="Ex: Clube de Tiro São Paulo - SP" value={newGuide.destino} onChange={e => setNewGuide(p => ({ ...p, destino: e.target.value }))} />
+                                                        </div>
+                                                    )}
                                                     <div className="md:col-span-4">
                                                         <label className="text-sm font-bold block mb-1">Observações</label>
                                                         <input type="text" placeholder="Opcional" value={newGuide.observacoes} onChange={e => setNewGuide(p => ({ ...p, observacoes: e.target.value }))} />
@@ -571,7 +617,7 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
                                         ) : (
                                             <div className="flex flex-col gap-2 mt-4">
                                                 {armaGuides.map((gt, index) => {
-                                                    const gtAlert = isExpiringSoon(gt.vencimentoGT, 15);
+                                                    const gtAlert = isExpiringSoon(gt.vencimentoGT, 30);
                                                     return (
                                                         <div key={gt.id} className="pt-2">
                                                             <div className={`p-4 ${gtAlert ? 'border-danger border-2 rounded bg-black bg-opacity-20' : ''}`}>

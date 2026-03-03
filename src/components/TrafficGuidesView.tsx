@@ -135,7 +135,7 @@ export const TrafficGuidesView: React.FC<TrafficGuidesViewProps> = ({
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {armaGuides.map((gt) => {
-                                            const gtAlert = isExpiringSoon(gt.vencimentoGT, 15);
+                                            const gtAlert = isExpiringSoon(gt.vencimentoGT, 30);
                                             // Zebra striping implemented via CSS child selectors or iterating logic
                                             return (
                                                 <div key={gt.id} className={`p-4 border rounded-md relative overflow-hidden transition-colors duration-200

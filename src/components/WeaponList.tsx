@@ -264,7 +264,7 @@ export const WeaponList: React.FC<WeaponListProps> = ({
                 )}
                 {weapons.map(arma => {
                     const isExpanded = expandedWeaponId === arma.id;
-                    const crafAlert = isExpiringSoon(arma.vencimentoCRAF, 30);
+                    const crafAlert = isExpiringSoon(arma.vencimentoCRAF, 60);
                     const isEditing = editingWeaponId === arma.id;
                     const classsificacao = getClassificacaoCalibre(arma.calibre, arma.tipo, arma.modelo, arma.tipoFuncionamento);
 
