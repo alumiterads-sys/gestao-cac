@@ -88,13 +88,13 @@ export const ClienteAvulsoPanel: React.FC<ClienteAvulsoPanelProps> = ({ cliente,
     const handleAddArma = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        const ok = await createAvulsoCraf({
+        const result = await createAvulsoCraf({
             avulso_id: cliente.id, tipo: arTipo, fabricante: arFabricante, modelo_arma: arModelo,
             calibre: arCalibre, n_serie: arNSerie, n_sigma: arNSigma, tipo_funcionamento: arFuncionamento,
             vencimento_craf: arVencCraf || undefined, acervo: arAcervo
         });
-        if (ok) { showMessage('Arma adicionada!', 'success'); setShowAddArma(false); setArTipo(''); setArFabricante(''); setArModelo(''); setArCalibre(''); setArNSerie(''); setArNSigma(''); setArVencCraf(''); loadData(); }
-        else showMessage('Erro ao adicionar arma.', 'error');
+        if (result === true) { showMessage('Arma adicionada!', 'success'); setShowAddArma(false); setArTipo(''); setArFabricante(''); setArModelo(''); setArCalibre(''); setArNSerie(''); setArNSigma(''); setArVencCraf(''); loadData(); }
+        else showMessage(`Erro ao adicionar arma: ${result}`, 'error');
         setIsLoading(false);
     };
 

@@ -34,7 +34,7 @@ export async function fetchWeapons(userId: string): Promise<Weapon[]> {
     }));
 }
 
-export async function createWeapon(weapon: Weapon): Promise<boolean> {
+export async function createWeapon(weapon: Weapon): Promise<string | true> {
     const { error } = await supabase.from('crafs').insert({
         id: weapon.id,
         cliente_id: weapon.userId,
@@ -49,7 +49,7 @@ export async function createWeapon(weapon: Weapon): Promise<boolean> {
         acervo: weapon.tipoAcervo,
         image_url: weapon.imageUrl || null,
     });
-    if (error) { console.error('createWeapon:', error.message); return false; }
+    if (error) { console.error('createWeapon:', error.message); return error.message; }
     return true;
 }
 
@@ -544,9 +544,9 @@ export async function fetchAvulsoCrafs(avulsoId: string): Promise<AvulsoCraf[]> 
     return data || [];
 }
 
-export async function createAvulsoCraf(craf: Omit<AvulsoCraf, 'id' | 'created_at'>): Promise<boolean> {
+export async function createAvulsoCraf(craf: Omit<AvulsoCraf, 'id' | 'created_at'>): Promise<string | true> {
     const { error } = await supabase.from('avulso_crafs').insert(craf);
-    if (error) { console.error('createAvulsoCraf:', error.message); return false; }
+    if (error) { console.error('createAvulsoCraf:', error.message); return error.message; }
     return true;
 }
 

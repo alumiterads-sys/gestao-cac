@@ -93,8 +93,12 @@ export const App: React.FC = () => {
 
   // ─── Weapons ──────────────────────────────────────────────
   const handleAddWeapon = async (w: Weapon) => {
-    await createWeapon(w);
-    setWeapons(prev => [...prev, w]);
+    const result = await createWeapon(w);
+    if (result === true) {
+      setWeapons(prev => [...prev, w]);
+    } else {
+      alert(`Erro ao salvar arma no banco: ${result}`);
+    }
   };
   const handleUpdateWeapon = async (w: Weapon) => {
     await updateWeapon(w);
