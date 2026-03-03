@@ -172,7 +172,7 @@ export const WeaponList: React.FC<WeaponListProps> = ({
     const handleAddWeapon = (e: React.FormEvent) => {
         e.preventDefault();
         const w: Weapon = {
-            id: `wp-${Date.now()}`,
+            id: crypto.randomUUID(),
             userId: '0', // Set in App.tsx typically, but keeping interface clean
             tipo: newWeapon.tipo as TipoArma,
             fabricante: newWeapon.fabricante || '',

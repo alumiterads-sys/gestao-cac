@@ -40,7 +40,7 @@ export const TrafficGuidesView: React.FC<TrafficGuidesViewProps> = ({
     const handleSaveGuide = (e: React.FormEvent) => {
         e.preventDefault();
         const g: TrafficGuide = {
-            id: `gt-${Date.now()}`,
+            id: crypto.randomUUID(),
             weaponId: addingGuideForWeapon!,
             tipoGuia: newGuide.tipoGuia as TipoGuia,
             vencimentoGT: newGuide.vencimentoGT || '',

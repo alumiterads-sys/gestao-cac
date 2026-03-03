@@ -54,7 +54,7 @@ export const App: React.FC = () => {
         setIbamaDoc(doc);
       } else {
         const newIbama: IbamaDoc = {
-          id: `ib-${Date.now()}`,
+          id: crypto.randomUUID(),
           userId: user.id,
           numeroCRIbama: '',
           vencimentoCR: '',

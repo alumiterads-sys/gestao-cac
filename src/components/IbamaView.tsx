@@ -126,7 +126,7 @@ export const IbamaView: React.FC<IbamaViewProps> = ({
     const handleAddProperty = (e: React.FormEvent) => {
         e.preventDefault();
         const np: IbamaProperty = {
-            id: `prop-${Date.now()}`,
+            id: crypto.randomUUID(),
             proprietario: newProp.proprietario || '',
             nomeFazenda: newProp.nomeFazenda || '',
             numeroCAR: newProp.numeroCAR || '',

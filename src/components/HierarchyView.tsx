@@ -254,7 +254,7 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
         // ------------------------
 
         const w: Weapon = {
-            id: `wp-${Date.now()}`,
+            id: crypto.randomUUID(),
             userId: user.id,
             tipo: newWeapon.tipo as TipoArma,
             fabricante: newWeapon.fabricante || '',
@@ -310,7 +310,7 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
     const handleSaveGuide = (e: React.FormEvent) => {
         e.preventDefault();
         const g: TrafficGuide = {
-            id: `gt-${Date.now()}`,
+            id: crypto.randomUUID(),
             weaponId: addingGuideForWeapon!,
             tipoGuia: newGuide.tipoGuia as TipoGuia,
             vencimentoGT: newGuide.vencimentoGT || '',
