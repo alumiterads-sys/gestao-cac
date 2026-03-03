@@ -161,6 +161,7 @@ interface HierarchyProps {
     onUpdateWeapon: (w: Weapon) => void;
     onDeleteWeapon: (id: string) => void;
     onAddGuide: (g: TrafficGuide) => void;
+    onUpdateGuide: (g: TrafficGuide) => void;
     onDeleteGuide: (id: string) => void;
     onUpdateProfile?: (u: UserProfile) => void;
 }
@@ -168,7 +169,7 @@ interface HierarchyProps {
 export const HierarchyView: React.FC<HierarchyProps> = ({
     user, weapons, guides,
     onAddWeapon, onUpdateWeapon, onDeleteWeapon,
-    onAddGuide, onDeleteGuide, onUpdateProfile
+    onAddGuide, onUpdateGuide, onDeleteGuide, onUpdateProfile
 }) => {
     const [expandedWeaponId, setExpandedWeaponId] = useState<string | null>(null);
 
@@ -192,6 +193,12 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
     const [guiaMunicipios, setGuiaMunicipios] = useState<{ nome: string }[]>([]);
     const [guiaEstado, setGuiaEstado] = useState('');
     const [guiaCidade, setGuiaCidade] = useState('');
+    // Edição de guia
+    const [editingGuideId, setEditingGuideId] = useState<string | null>(null);
+    const [editGuideData, setEditGuideData] = useState<Partial<TrafficGuide>>({});
+    const [editGuiaEstado, setEditGuiaEstado] = useState('');
+    const [editGuiaCidade, setEditGuiaCidade] = useState('');
+    const [editGuiaMunicipios, setEditGuiaMunicipios] = useState<{ nome: string }[]>([]);
 
     // ── Confirm dialogs ────────────────────────────────────────
     const [confirmDeleteWeapon, setConfirmDeleteWeapon] = useState<string | null>(null);
@@ -311,7 +318,6 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
         }
     };
 
-    // ── Guide ──────────────────────────────────────────────────
     const isCacaGuia = (tipo?: string) => tipo?.includes('Caça');
 
     React.useEffect(() => {
@@ -328,6 +334,14 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
             setGuiaMunicipios([]);
         }
     }, [guiaEstado]);
+
+    React.useEffect(() => {
+        if (editGuiaEstado) {
+            setEditGuiaCidade('');
+            fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${editGuiaEstado}/municipios?orderBy=nome`)
+                .then(r => r.json()).then(setEditGuiaMunicipios).catch(() => { });
+        } else setEditGuiaMunicipios([]);
+    }, [editGuiaEstado]);
 
     const handleSaveGuide = (e: React.FormEvent) => {
         e.preventDefault();
@@ -347,6 +361,25 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
         setNewGuide({ tipoGuia: 'Tiro Desportivo', vencimentoGT: '', destino: '', observacoes: '' });
         setGuiaEstado('');
         setGuiaCidade('');
+    };
+
+    const handleSaveEditGuide = (e: React.FormEvent) => {
+        e.preventDefault();
+        const original = guides.find(g => g.id === editingGuideId)!;
+        const destino = isCacaGuia(editGuideData.tipoGuia)
+            ? (editGuiaCidade && editGuiaEstado ? `${editGuiaCidade} - ${editGuiaEstado}` : editGuideData.destino || original.destino)
+            : editGuideData.destino || original.destino;
+        const updated: TrafficGuide = {
+            ...original,
+            tipoGuia: (editGuideData.tipoGuia as TipoGuia) || original.tipoGuia,
+            vencimentoGT: editGuideData.vencimentoGT || original.vencimentoGT,
+            destino,
+            observacoes: editGuideData.observacoes ?? original.observacoes,
+        };
+        onUpdateGuide(updated);
+        setEditingGuideId(null);
+        setEditGuiaEstado('');
+        setEditGuiaCidade('');
     };
 
     const doDeleteGuide = () => {
@@ -615,33 +648,93 @@ export const HierarchyView: React.FC<HierarchyProps> = ({
                                         {armaGuides.length === 0 && !isAddingGuide ? (
                                             <p className="text-muted text-sm">Nenhuma guia registrada para esta arma.</p>
                                         ) : (
-                                            <div className="flex flex-col gap-2 mt-4">
-                                                {armaGuides.map((gt, index) => {
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem', marginTop: '0.75rem' }}>
+                                                {armaGuides.map(gt => {
                                                     const gtAlert = isExpiringSoon(gt.vencimentoGT, 30);
+                                                    const dias = getDaysRemaining(gt.vencimentoGT);
+                                                    const isEditingThis = editingGuideId === gt.id;
                                                     return (
-                                                        <div key={gt.id} className="pt-2">
-                                                            <div className={`p-4 ${gtAlert ? 'border-danger border-2 rounded bg-black bg-opacity-20' : ''}`}>
-                                                                <div className="flex justify-between items-center mb-2">
-                                                                    <strong className="text-lg text-accent-primary">Tipo de Guia: {gt.tipoGuia}</strong>
-                                                                    <button className="btn btn-secondary text-xs text-danger hover:bg-danger hover:text-white border-transparent bg-black bg-opacity-30"
-                                                                        onClick={e => { e.stopPropagation(); setConfirmDeleteGuide(gt.id); }}>
-                                                                        Excluir Guia
-                                                                    </button>
-                                                                </div>
-                                                                <div className="flex flex-col gap-1 text-sm text-gray-300">
-                                                                    <p><strong className="text-muted">Vencimento:</strong> <span className={`${gtAlert ? 'text-danger font-bold' : 'text-success font-bold'}`}>{formatDateBR(gt.vencimentoGT)} {gtAlert && '(Próximo do Vencimento)'}</span></p>
-                                                                    <p><strong className="text-muted">Local:</strong> {gt.destino}</p>
-                                                                    {gt.observacoes && <p><strong className="text-muted">Observações:</strong> {gt.observacoes}</p>}
-                                                                </div>
+                                                        <div key={gt.id} style={{
+                                                            padding: '1.1rem',
+                                                            borderRadius: '1.25rem',
+                                                            backgroundColor: 'rgba(0,0,0,0.2)',
+                                                            border: `2px solid ${gtAlert ? 'var(--danger)' : 'rgba(255,255,255,0.1)'}`,
+                                                            display: 'flex', flexDirection: 'column', gap: '0.4rem'
+                                                        }}>
+                                                            <div className="flex justify-between items-start">
+                                                                <strong className="text-accent-primary text-sm leading-tight">{gt.tipoGuia}</strong>
+                                                                {gtAlert && <span className="badge badge-danger text-[10px] whitespace-nowrap ml-1">Vence em {dias}d</span>}
                                                             </div>
-                                                            {index !== armaGuides.length - 1 && (
-                                                                <hr className="my-5 border-t-4 border-gray-600 mx-1 rounded-full" />
+
+                                                            {isEditingThis ? (
+                                                                <form onSubmit={handleSaveEditGuide} className="mt-2 flex flex-col gap-2" onClick={e => e.stopPropagation()}>
+                                                                    <div>
+                                                                        <label className="text-xs font-bold block mb-1">Tipo de Guia</label>
+                                                                        <select value={editGuideData.tipoGuia || gt.tipoGuia} onChange={e => { setEditGuideData(p => ({ ...p, tipoGuia: e.target.value as TipoGuia })); setEditGuiaEstado(''); setEditGuiaCidade(''); }}>
+                                                                            {TIPOS_GUIA.map(t => <option key={t} value={t}>{t}</option>)}
+                                                                        </select>
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="text-xs font-bold block mb-1">Vencimento</label>
+                                                                        <input type="date" required value={editGuideData.vencimentoGT || gt.vencimentoGT} onChange={e => setEditGuideData(p => ({ ...p, vencimentoGT: e.target.value }))} />
+                                                                    </div>
+                                                                    {isCacaGuia(editGuideData.tipoGuia || gt.tipoGuia) ? (
+                                                                        <>
+                                                                            <div>
+                                                                                <label className="text-xs font-bold block mb-1">Estado (UF)</label>
+                                                                                <select value={editGuiaEstado} onChange={e => setEditGuiaEstado(e.target.value)}>
+                                                                                    <option value="" disabled>Selecione o Estado</option>
+                                                                                    {guiaEstados.map(est => <option key={est.sigla} value={est.sigla}>{est.sigla}</option>)}
+                                                                                </select>
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="text-xs font-bold block mb-1">Município</label>
+                                                                                <select value={editGuiaCidade} onChange={e => setEditGuiaCidade(e.target.value)} disabled={!editGuiaEstado || editGuiaMunicipios.length === 0}>
+                                                                                    <option value="" disabled>{editGuiaEstado ? 'Selecione' : 'Selecione o Estado'}</option>
+                                                                                    {editGuiaMunicipios.map(m => <option key={m.nome} value={m.nome}>{m.nome}</option>)}
+                                                                                </select>
+                                                                            </div>
+                                                                        </>
+                                                                    ) : (
+                                                                        <div>
+                                                                            <label className="text-xs font-bold block mb-1">Destino</label>
+                                                                            <input type="text" value={editGuideData.destino ?? gt.destino} onChange={e => setEditGuideData(p => ({ ...p, destino: e.target.value }))} />
+                                                                        </div>
+                                                                    )}
+                                                                    <div>
+                                                                        <label className="text-xs font-bold block mb-1">Observações</label>
+                                                                        <input type="text" value={editGuideData.observacoes ?? gt.observacoes} onChange={e => setEditGuideData(p => ({ ...p, observacoes: e.target.value }))} />
+                                                                    </div>
+                                                                    <div className="flex gap-2 mt-1">
+                                                                        <button type="submit" className="btn btn-primary text-xs flex-1">💾 Salvar</button>
+                                                                        <button type="button" className="btn btn-secondary text-xs" onClick={e => { e.stopPropagation(); setEditingGuideId(null); setEditGuiaEstado(''); setEditGuiaCidade(''); }}>Cancelar</button>
+                                                                    </div>
+                                                                </form>
+                                                            ) : (
+                                                                <>
+                                                                    <div className="text-sm space-y-1 flex-grow mt-1">
+                                                                        <p><span className={`font-bold ${gtAlert ? 'text-danger' : 'text-success'}`}>{formatDateBR(gt.vencimentoGT)}</span></p>
+                                                                        <p className="text-muted text-xs"><strong>Destino:</strong> {gt.destino}</p>
+                                                                        {gt.observacoes && <p className="text-muted text-xs"><strong>Obs:</strong> {gt.observacoes}</p>}
+                                                                    </div>
+                                                                    <div className="flex gap-2 mt-2 pt-2 border-t border-color-light">
+                                                                        <button className="btn btn-secondary text-xs flex-1"
+                                                                            onClick={e => { e.stopPropagation(); setEditingGuideId(gt.id); setEditGuideData({ ...gt }); setEditGuiaEstado(''); setEditGuiaCidade(''); setAddingGuideForWeapon(null); }}>
+                                                                            ✏️ Editar
+                                                                        </button>
+                                                                        <button className="btn btn-secondary text-xs flex-1 text-danger border-danger"
+                                                                            onClick={e => { e.stopPropagation(); setConfirmDeleteGuide(gt.id); }}>
+                                                                            🗑 Excluir
+                                                                        </button>
+                                                                    </div>
+                                                                </>
                                                             )}
                                                         </div>
                                                     );
                                                 })}
                                             </div>
                                         )}
+
                                     </div>
 
                                     {/* Ações da arma */}

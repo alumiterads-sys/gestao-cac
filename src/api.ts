@@ -111,6 +111,18 @@ export async function createGuide(guide: TrafficGuide): Promise<boolean> {
     return true;
 }
 
+export async function updateGuide(guide: TrafficGuide): Promise<boolean> {
+    const { error } = await supabase.from('guias').update({
+        arma_id: guide.weaponId || null,
+        tipo_guia: guide.tipoGuia,
+        data_vencimento: guide.vencimentoGT || null,
+        destino: guide.destino || null,
+        observacoes: guide.observacoes || null,
+    }).eq('id', guide.id);
+    if (error) { console.error('updateGuide:', error.message); return false; }
+    return true;
+}
+
 export async function deleteGuide(id: string): Promise<boolean> {
     const { error } = await supabase.from('guias').delete().eq('id', id);
     if (error) { console.error('deleteGuide:', error.message); return false; }

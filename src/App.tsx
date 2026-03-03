@@ -12,7 +12,7 @@ import { OrdensServicoView } from './components/OrdensServicoView';
 import * as Tabs from '@radix-ui/react-tabs';
 import {
   fetchWeapons, createWeapon, updateWeapon, deleteWeapon,
-  fetchGuides, createGuide, deleteGuide,
+  fetchGuides, createGuide, updateGuide, deleteGuide,
   fetchIbamaDoc, saveIbamaDoc,
   createIbamaProperty, updateIbamaProperty, deleteIbamaProperty
 } from './api';
@@ -114,6 +114,10 @@ export const App: React.FC = () => {
     const guideWithUser = { ...g, userId: user?.id };
     await createGuide(guideWithUser);
     setGuides(prev => [...prev, guideWithUser]);
+  };
+  const handleUpdateGuide = async (g: TrafficGuide) => {
+    await updateGuide(g);
+    setGuides(prev => prev.map(x => x.id === g.id ? g : x));
   };
   const handleDeleteGuide = async (id: string) => {
     await deleteGuide(id);
@@ -254,6 +258,7 @@ export const App: React.FC = () => {
           onUpdateWeapon={handleUpdateWeapon}
           onDeleteWeapon={handleDeleteWeapon}
           onAddGuide={handleAddGuide}
+          onUpdateGuide={handleUpdateGuide}
           onDeleteGuide={handleDeleteGuide}
           onUpdateProfile={handleUpdateProfile}
         />
