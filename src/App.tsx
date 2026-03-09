@@ -201,7 +201,7 @@ export const App: React.FC = () => {
               >
                 <div className="flex items-center gap-2">
                   <span className="material-icons text-[1.2rem]">list_alt</span>
-                  Meus Serviços
+                  Serviços e Valores
                 </div>
               </Tabs.Trigger>
             </Tabs.List>
