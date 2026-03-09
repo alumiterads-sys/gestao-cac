@@ -382,11 +382,11 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
                         <p className="text-sm">Nenhum cliente cadastrado.</p>
                     </div>
                 ) : (
-                    <div className="flex flex-col divide-y divide-color-light">
-                        {unifiedClients.map(client => (
+                    <div className="flex flex-col">
+                        {unifiedClients.map((client, index) => (
                             <button
                                 key={`${client.type}-${client.id}`}
-                                className="flex items-center gap-3 py-2.5 px-2 hover:bg-white hover:bg-opacity-5 transition-colors rounded-md text-left w-full group"
+                                className={`flex items-center gap-3 py-3 px-3 hover:bg-accent-primary hover:bg-opacity-10 transition-colors text-left w-full group ${index < unifiedClients.length - 1 ? 'border-b border-color-light border-opacity-40' : ''}`}
                                 onClick={() => handleOpenClient(client)}
                             >
                                 {/* Avatar inicial */}
@@ -394,22 +394,41 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
                                     {client.nome.charAt(0).toUpperCase()}
                                 </div>
 
-                                {/* Nome e info */}
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-sm truncate group-hover:text-accent-primary transition-colors">{client.nome}</p>
+                                {/* Nome */}
+                                <div className="w-40 min-w-0 flex-shrink-0">
+                                    <p className="font-bold text-sm truncate group-hover:text-accent-primary transition-colors text-white">{client.nome}</p>
+                                    <p className="text-[10px] text-muted truncate">{client.cpf || '—'}</p>
+                                </div>
+
+                                {/* Contato */}
+                                <div className="flex-1 min-w-0 hidden md:block">
                                     <p className="text-xs text-muted truncate">
-                                        {client.cpf ? `CPF: ${client.cpf}` : ''}
-                                        {client.telefone ? ` · ${client.telefone}` : ''}
+                                        {client.telefone
+                                            ? <><span className="material-icons text-[11px] align-middle mr-1">phone</span>{client.telefone}</>
+                                            : <span className="opacity-40">—</span>
+                                        }
                                     </p>
                                 </div>
 
+                                {/* Senha Gov.br — apenas para manual */}
+                                <div className="w-32 flex-shrink-0 hidden md:block">
+                                    {client.type === 'offline' && client.senha ? (
+                                        <p className="text-[10px] font-mono text-info flex items-center gap-1">
+                                            <span className="material-icons text-[11px]">password</span>
+                                            {client.senha}
+                                        </p>
+                                    ) : (
+                                        <span className="text-[10px] text-muted opacity-40">{client.type === 'app' ? 'App' : '—'}</span>
+                                    )}
+                                </div>
+
                                 {/* Badge tipo */}
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full border flex-shrink-0 ${client.type === 'app' ? 'border-success text-success' : 'border-warning text-warning'}`}>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full border flex-shrink-0 font-bold ${client.type === 'app' ? 'border-success border-opacity-50 text-success' : 'border-warning border-opacity-50 text-warning'}`}>
                                     {client.type === 'app' ? 'App' : 'Manual'}
                                 </span>
 
                                 {/* Seta */}
-                                <span className="material-icons text-muted text-sm flex-shrink-0 group-hover:text-accent-primary transition-colors">chevron_right</span>
+                                <span className="material-icons text-muted text-base flex-shrink-0 group-hover:text-accent-primary transition-colors">chevron_right</span>
                             </button>
                         ))}
                     </div>
