@@ -212,29 +212,71 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
                     </h3>
 
                     {alertas.length === 0 ? (
-                        <div className="text-center p-4 text-success border border-success border-opacity-30 rounded-md mt-auto mb-auto">
-                            <span className="material-icons text-3xl mb-2">check_circle</span>
+                        <div className="text-center p-6 text-success border border-success border-opacity-30 rounded-lg mt-auto mb-auto flex flex-col items-center">
+                            <span className="material-icons text-4xl mb-2">check_circle</span>
                             <p className="text-sm font-bold">Tudo em dia!</p>
-                            <p className="text-xs">Nenhum documento de cliente vencendo nos próximos 30 dias.</p>
+                            <p className="text-xs text-muted mt-1">Nenhum documento vencendo nos próximos 30 dias.</p>
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-3 overflow-y-auto custom-scrollbar max-h-64 pr-2">
-                            {alertas.map(alerta => (
-                                <div key={alerta.id} className="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-30 rounded-md">
-                                    <div className="flex justify-between items-start mb-1">
-                                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${alerta.diasRestantes <= 15 ? 'bg-danger text-white' : 'bg-warning text-black'}`}>
-                                            {alerta.tipo}
-                                        </span>
-                                        <span className={`text-xs font-bold flex items-center gap-1 ${alerta.diasRestantes <= 15 ? 'text-danger' : 'text-warning'}`}>
-                                            <span className="material-icons text-[12px]">timer</span>
-                                            {alerta.diasRestantes} dias
-                                        </span>
+                        <div className="flex flex-col gap-3 overflow-y-auto custom-scrollbar max-h-80 pr-1">
+                            {alertas.map(alerta => {
+                                const isUrgent = alerta.diasRestantes <= 15;
+                                const tipoIcone: Record<string, string> = {
+                                    'CRAF': 'military_tech',
+                                    'CR': 'badge',
+                                    'GT': 'local_shipping',
+                                    'CR IBAMA': 'park',
+                                };
+                                const icone = tipoIcone[alerta.tipo] || 'description';
+                                return (
+                                    <div
+                                        key={alerta.id}
+                                        className={`rounded-lg border flex overflow-hidden ${
+                                            isUrgent
+                                                ? 'border-danger border-opacity-50 bg-danger bg-opacity-5'
+                                                : 'border-warning border-opacity-40 bg-warning bg-opacity-5'
+                                        }`}
+                                    >
+                                        {/* Barra lateral de urgência */}
+                                        <div className={`w-1.5 flex-shrink-0 ${isUrgent ? 'bg-danger' : 'bg-warning'}`} />
+
+                                        {/* Ícone do tipo de documento */}
+                                        <div className={`flex items-center justify-center px-3 flex-shrink-0 ${
+                                            isUrgent ? 'text-danger' : 'text-warning'
+                                        }`}>
+                                            <span className="material-icons text-2xl">{icone}</span>
+                                        </div>
+
+                                        {/* Conteúdo principal */}
+                                        <div className="flex-1 py-3 pr-2 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide flex-shrink-0 ${
+                                                    isUrgent ? 'bg-danger text-white' : 'bg-warning text-black'
+                                                }`}>
+                                                    {alerta.tipo}
+                                                </span>
+                                                <p className="font-bold text-sm truncate text-white">{alerta.clienteNome}</p>
+                                            </div>
+                                            <p className="text-xs text-muted truncate">{alerta.documento}</p>
+                                            <p className="text-[10px] text-muted mt-1">Vence: {formatDateBR(alerta.vencimento)}</p>
+                                        </div>
+
+                                        {/* Contador de dias */}
+                                        <div className={`flex flex-col items-center justify-center px-4 flex-shrink-0 border-l ${
+                                            isUrgent ? 'border-danger border-opacity-30' : 'border-warning border-opacity-30'
+                                        }`}>
+                                            <span className={`text-2xl font-black leading-none ${
+                                                isUrgent ? 'text-danger' : 'text-warning'
+                                            }`}>
+                                                {alerta.diasRestantes}
+                                            </span>
+                                            <span className={`text-[9px] font-bold uppercase mt-0.5 ${
+                                                isUrgent ? 'text-danger' : 'text-warning'
+                                            }`}>dias</span>
+                                        </div>
                                     </div>
-                                    <p className="font-bold text-sm text-accent-primary">{alerta.clienteNome}</p>
-                                    <p className="text-xs text-muted truncate">{alerta.documento}</p>
-                                    <p className="text-[10px] text-muted mt-1">Vence: {formatDateBR(alerta.vencimento)}</p>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>
