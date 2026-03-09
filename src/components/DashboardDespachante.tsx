@@ -28,7 +28,12 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
 
         // Alertas de Vencimento dos Clientes Ativos
         const newAlertas: any[] = [];
-        const activeIds = connData.filter(c => c.status === 'active').map(c => c.cacId);
+        const activeConns = connData.filter(c => c.status === 'active');
+        const activeIds = activeConns.map(c => c.cacId);
+
+        // Mapa cacId -> nome, vindo de connData que já tem o JOIN correto
+        const nomeMap = new Map<string, string>();
+        activeConns.forEach(c => { if (c.cacId && c.cacNome) nomeMap.set(c.cacId, c.cacNome); });
 
         if (activeIds.length > 0) {
             const { profiles, weapons, guides, ibamaDocs } = await fetchClientsDashboardData(activeIds);
@@ -36,8 +41,9 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
             // 1. CR
             profiles.forEach((p: any) => {
                 if (p.vencimento_cr && isExpiringSoon(p.vencimento_cr, 30)) {
+                    const nome = nomeMap.get(p.id) || p.nome || 'Desconhecido';
                     newAlertas.push({
-                        id: `cr-${p.id}`, clienteNome: p.nome, tipo: 'CR',
+                        id: `cr-${p.id}`, clienteNome: nome, tipo: 'CR',
                         documento: `CR Nº ${p.numero_cr}`, vencimento: p.vencimento_cr, diasRestantes: getDaysRemaining(p.vencimento_cr)
                     });
                 }
@@ -45,9 +51,9 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
             // 2. CRAF
             weapons.forEach((w: any) => {
                 if (w.vencimento_craf && isExpiringSoon(w.vencimento_craf, 60)) {
-                    const prof = profiles.find((p: any) => p.id === w.cliente_id);
+                    const nome = nomeMap.get(w.cliente_id) || 'Desconhecido';
                     newAlertas.push({
-                        id: `craf-${w.id}`, clienteNome: prof?.nome || 'Desconhecido', tipo: 'CRAF',
+                        id: `craf-${w.id}`, clienteNome: nome, tipo: 'CRAF',
                         documento: `CRAF - ${w.fabricante} ${w.modelo_arma}`, vencimento: w.vencimento_craf, diasRestantes: getDaysRemaining(w.vencimento_craf)
                     });
                 }
@@ -55,9 +61,9 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
             // 3. GT
             guides.forEach((g: any) => {
                 if (g.vencimento_gt && isExpiringSoon(g.vencimento_gt, 30)) {
-                    const prof = profiles.find((p: any) => p.id === g.cliente_id);
+                    const nome = nomeMap.get(g.cliente_id) || 'Desconhecido';
                     newAlertas.push({
-                        id: `gt-${g.id}`, clienteNome: prof?.nome || 'Desconhecido', tipo: 'GT',
+                        id: `gt-${g.id}`, clienteNome: nome, tipo: 'GT',
                         documento: `Guia de Tráfego`, vencimento: g.vencimento_gt, diasRestantes: getDaysRemaining(g.vencimento_gt)
                     });
                 }
@@ -65,9 +71,9 @@ export const DashboardDespachante: React.FC<DashboardDespachanteProps> = ({ user
             // 4. IBAMA
             ibamaDocs.forEach((i: any) => {
                 if (i.venc_cr_ibama && isExpiringSoon(i.venc_cr_ibama, 30)) {
-                    const prof = profiles.find((p: any) => p.id === i.cliente_id);
+                    const nome = nomeMap.get(i.cliente_id) || 'Desconhecido';
                     newAlertas.push({
-                        id: `ibama-${i.id}`, clienteNome: prof?.nome || 'Desconhecido', tipo: 'CR IBAMA',
+                        id: `ibama-${i.id}`, clienteNome: nome, tipo: 'CR IBAMA',
                         documento: `CR IBAMA`, vencimento: i.venc_cr_ibama, diasRestantes: getDaysRemaining(i.venc_cr_ibama)
                     });
                 }
