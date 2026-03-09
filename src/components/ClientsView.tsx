@@ -386,44 +386,37 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
                         {unifiedClients.map((client, index) => (
                             <button
                                 key={`${client.type}-${client.id}`}
-                                className={`flex items-center gap-3 py-3 px-3 hover:bg-accent-primary hover:bg-opacity-10 transition-colors text-left w-full group ${index < unifiedClients.length - 1 ? 'border-b border-color-light border-opacity-40' : ''}`}
+                                style={{ background: 'transparent', border: 'none', borderBottom: index < unifiedClients.length - 1 ? '1px solid rgba(255,255,255,0.08)' : 'none' }}
+                                className="flex items-center gap-3 py-2.5 px-3 hover:bg-accent-primary hover:bg-opacity-10 transition-colors text-left w-full group cursor-pointer"
                                 onClick={() => handleOpenClient(client)}
                             >
-                                {/* Avatar inicial */}
+                                {/* Avatar */}
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${client.type === 'app' ? 'bg-accent-primary bg-opacity-20 text-accent-primary' : 'bg-warning bg-opacity-20 text-warning'}`}>
                                     {client.nome.charAt(0).toUpperCase()}
                                 </div>
 
-                                {/* Nome */}
-                                <div className="w-40 min-w-0 flex-shrink-0">
-                                    <p className="font-bold text-sm truncate group-hover:text-accent-primary transition-colors text-white">{client.nome}</p>
-                                    <p className="text-[10px] text-muted truncate">{client.cpf || '—'}</p>
-                                </div>
-
-                                {/* Contato */}
-                                <div className="flex-1 min-w-0 hidden md:block">
-                                    <p className="text-xs text-muted truncate">
-                                        {client.telefone
-                                            ? <><span className="material-icons text-[11px] align-middle mr-1">phone</span>{client.telefone}</>
-                                            : <span className="opacity-40">—</span>
-                                        }
+                                {/* Infos inline */}
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-sm text-white group-hover:text-accent-primary transition-colors">{client.nome}</p>
+                                    <p className="text-[11px] text-muted flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                                        {client.cpf && <span>CPF: {client.cpf}</span>}
+                                        {client.telefone && (
+                                            <span className="flex items-center gap-0.5">
+                                                <span className="material-icons text-[10px]">phone</span>
+                                                {client.telefone}
+                                            </span>
+                                        )}
+                                        {client.type === 'offline' && client.senha && (
+                                            <span className="flex items-center gap-0.5 text-info font-mono">
+                                                <span className="material-icons text-[10px]">password</span>
+                                                {client.senha}
+                                            </span>
+                                        )}
                                     </p>
                                 </div>
 
-                                {/* Senha Gov.br — apenas para manual */}
-                                <div className="w-32 flex-shrink-0 hidden md:block">
-                                    {client.type === 'offline' && client.senha ? (
-                                        <p className="text-[10px] font-mono text-info flex items-center gap-1">
-                                            <span className="material-icons text-[11px]">password</span>
-                                            {client.senha}
-                                        </p>
-                                    ) : (
-                                        <span className="text-[10px] text-muted opacity-40">{client.type === 'app' ? 'App' : '—'}</span>
-                                    )}
-                                </div>
-
                                 {/* Badge tipo */}
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full border flex-shrink-0 font-bold ${client.type === 'app' ? 'border-success border-opacity-50 text-success' : 'border-warning border-opacity-50 text-warning'}`}>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full border flex-shrink-0 font-semibold ${client.type === 'app' ? 'border-success border-opacity-60 text-success' : 'border-warning border-opacity-60 text-warning'}`}>
                                     {client.type === 'app' ? 'App' : 'Manual'}
                                 </span>
 
@@ -526,11 +519,39 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
                                             <p className="text-muted text-sm">Carregando dados do cliente...</p>
                                         </div>
                                     ) : viewingClient ? (
-                                        <div>
-                                            <div className="bg-info bg-opacity-10 border border-info border-opacity-30 text-info p-3 rounded-md mb-5 flex items-start gap-2 text-sm">
-                                                <span className="material-icons text-sm mt-0.5">info</span>
-                                                <p>Visualização em <strong>modo leitura</strong>. As edições diretas devem ser feitas pelo próprio CAC.</p>
+                                        <div className="flex flex-col gap-5">
+                                            {/* DADOS PESSOAIS DO CLIENTE APP */}
+                                            <div className="glass-panel p-4">
+                                                <h4 className="font-bold text-accent-primary mb-3 flex items-center gap-2 text-sm">
+                                                    <span className="material-icons text-base">person</span>
+                                                    Dados Pessoais
+                                                </h4>
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                    <div>
+                                                        <p className="text-[10px] text-muted uppercase tracking-wide">Nome</p>
+                                                        <p className="font-bold text-sm">{viewingClient.nome}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] text-muted uppercase tracking-wide">CPF</p>
+                                                        <p className="font-bold text-sm font-mono">{viewingClient.cpf || '—'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] text-muted uppercase tracking-wide">Telefone</p>
+                                                        <p className="font-bold text-sm">{(viewingClient as any).telefone || '—'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] text-muted uppercase tracking-wide">E-mail</p>
+                                                        <p className="font-bold text-sm truncate">{(viewingClient as any).email || '—'}</p>
+                                                    </div>
+                                                </div>
                                             </div>
+
+                                            {/* AVISO LEITURA */}
+                                            <div className="bg-info bg-opacity-10 border border-info border-opacity-30 text-info p-3 rounded-md flex items-start gap-2 text-sm">
+                                                <span className="material-icons text-sm mt-0.5">info</span>
+                                                <p>Visualização em <strong>modo leitura</strong>. As edições devem ser feitas pelo próprio CAC.</p>
+                                            </div>
+
                                             <Dashboard
                                                 user={viewingClient}
                                                 weapons={clientWeapons}
