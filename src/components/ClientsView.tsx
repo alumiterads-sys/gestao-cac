@@ -526,7 +526,7 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
                                                     <span className="material-icons text-base">person</span>
                                                     Dados Pessoais
                                                 </h4>
-                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                                                     <div>
                                                         <p className="text-[10px] text-muted uppercase tracking-wide">Nome</p>
                                                         <p className="font-bold text-sm">{viewingClient.nome}</p>
@@ -542,6 +542,10 @@ export const ClientsView: React.FC<ClientsViewProps> = ({ user }) => {
                                                     <div>
                                                         <p className="text-[10px] text-muted uppercase tracking-wide">E-mail</p>
                                                         <p className="font-bold text-sm truncate">{(viewingClient as any).email || '—'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] text-muted uppercase tracking-wide">Senha Gov.br</p>
+                                                        <p className="font-bold text-sm font-mono text-info">{(viewingClient as any).senha_gov || '—'}</p>
                                                     </div>
                                                 </div>
                                             </div>
