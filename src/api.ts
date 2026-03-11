@@ -238,6 +238,7 @@ export async function fetchUserProfileById(id: string): Promise<UserProfile | nu
         atividadesCR: data.atividades_cr || [],
         nivelAtirador: data.nivel_atirador || undefined,
         observacoesGlobais: data.observacoes_globais || undefined,
+        ativo: data.ativo !== false, // Defaults to true if null
     };
 }
 

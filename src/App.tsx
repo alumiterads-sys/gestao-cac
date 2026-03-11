@@ -9,6 +9,7 @@ import { CacConnectionAlerts } from './components/CacConnectionAlerts';
 import { DashboardDespachante } from './components/DashboardDespachante';
 import { ServicosView } from './components/ServicosView';
 import { OrdensServicoView } from './components/OrdensServicoView';
+import { SuperAdminDashboard } from './components/superadmin/SuperAdminDashboard';
 import * as Tabs from '@radix-ui/react-tabs';
 import {
   fetchWeapons, createWeapon, updateWeapon, deleteWeapon,
@@ -40,8 +41,8 @@ export const App: React.FC = () => {
 
     localStorage.setItem('gcac_session_user', JSON.stringify(user));
 
-    // Redirecionar admin para painel admin (futuro)
-    if (user.role === 'admin') {
+    // Redirecionar admin para painel admin ou superadmin
+    if (user.role === 'admin' || user.role === 'superadmin') {
       // Admin não carrega dados CAC pessoais
       return;
     }
@@ -159,7 +160,16 @@ export const App: React.FC = () => {
   // Determine se o layout deve ser de Administrador
   // Gestão CAC deve sempre carregar layout Admin, Portal GCAC o de Usuário CAC.
   const isGestaoHost = typeof window !== 'undefined' && window.location.hostname.includes('gestao-cac');
+  const isSuperAdminLayout = user.role === 'superadmin';
   const isAdminLayout = user.role === 'admin' || isGestaoHost;
+
+  if (isSuperAdminLayout) {
+    return (
+      <Layout userName={user.nome} onLogout={handleLogout} role="superadmin">
+        <SuperAdminDashboard />
+      </Layout>
+    );
+  }
 
   // Painel Admin / Despachante
   if (isAdminLayout) {

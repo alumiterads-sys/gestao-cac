@@ -11,7 +11,8 @@ export interface UserProfile {
   clubeFiliado: string;
   nivelAtirador?: '1' | '2' | '3';
   observacoesGlobais: string;
-  role: 'admin' | 'user'; // admin = despachante, user = CAC
+  role: 'admin' | 'user' | 'superadmin'; // admin = despachante, user = CAC, superadmin = gestor app
+  ativo?: boolean;
 }
 
 export type TipoArma = 'Carabina/Fuzil' | 'Revólver' | 'Pistola' | 'Pistolete' | 'Espingarda';
@@ -96,7 +97,8 @@ export interface Cliente {
   filiado: boolean;
   atividades_cr?: string;
   clube_filiado?: string;
-  role: 'admin' | 'user';
+  role: 'admin' | 'user' | 'superadmin';
+  ativo?: boolean;
   created_at?: string;
 }
 

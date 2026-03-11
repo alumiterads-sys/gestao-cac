@@ -69,6 +69,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             return;
         }
 
+        if (profile.ativo === false) {
+            setErro('Sua conta está inativa. Contate a administração para reativar o acesso.');
+            setIsLoading(false);
+            return;
+        }
+
         onLoginSuccess(profile, false);
         setIsLoading(false);
     };

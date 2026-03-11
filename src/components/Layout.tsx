@@ -4,11 +4,11 @@ interface LayoutProps {
     children: React.ReactNode;
     userName?: string;
     onLogout?: () => void;
-    role?: 'admin' | 'user';
+    role?: 'admin' | 'user' | 'superadmin';
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, userName, onLogout, role = 'user' }) => {
-    const badgeColor = role === 'admin' ? '#f59e0b' : 'var(--accent-primary)';
+    const badgeColor = role === 'admin' ? '#f59e0b' : role === 'superadmin' ? '#a855f7' : 'var(--accent-primary)';
 
     return (
         <div className="app-layout">
