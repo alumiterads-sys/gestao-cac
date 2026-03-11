@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { fetchAllUsers, toggleUserStatus } from '../../api/superadmin';
+import { fetchAllUsers, toggleUserStatus, deleteUser } from '../../api/superadmin';
 import type { Cliente } from '../../types';
+import { AddUserModal } from './AddUserModal';
 
 export const UsersList: React.FC = () => {
   const [users, setUsers] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'user' | 'superadmin'>('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -37,6 +39,27 @@ export const UsersList: React.FC = () => {
     }
   };
 
+  const handleDeleteUser = async (user: Cliente) => {
+    const confirmation = window.prompt(
+      `ATENÇÃO: Você está prestes a EXCLUIR PERMANENTEMENTE o usuário ${user.nome}.\n\nIsso apagará todas as armas, guias e registros IBAMA vinculados a ele. Essa ação NÃO PODE SER DESFEITA.\n\nDigite "EXCLUIR" para confirmar:`
+    );
+
+    if (confirmation !== 'EXCLUIR') {
+      alert('Exclusão cancelada.');
+      return;
+    }
+
+    setLoading(true);
+    const success = await deleteUser(user.id);
+    if (success) {
+      setUsers(prev => prev.filter(u => u.id !== user.id));
+      alert('Usuário excluído com sucesso.');
+    } else {
+      alert('Houve um erro ao excluir o usuário.');
+    }
+    setLoading(false);
+  };
+
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
       u.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -60,9 +83,18 @@ export const UsersList: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 className="text-xl font-bold font-heading flex flex-col">
           Gerenciamento de Usuários
-          <span className="text-sm font-normal text-muted-foreground mt-1">Ative ou desative o acesso ao sistema</span>
+          <span className="text-sm font-normal text-muted-foreground mt-1">Ative, desative ou adicione novos usuários</span>
         </h2>
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
+            
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="btn btn-primary flex items-center gap-2 whitespace-nowrap h-fit"
+          >
+            <span className="material-icons text-sm">add</span>
+            Adicionar Usuário
+          </button>
+
           <input
             type="text"
             placeholder="Buscar por nome, CPF ou email..."
@@ -146,6 +178,14 @@ export const UsersList: React.FC = () => {
                       >
                         {isAtivo ? 'Desativar' : 'Ativar'}
                       </button>
+
+                      <button
+                        onClick={() => handleDeleteUser(u)}
+                        className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-red-900/40 text-red-500 hover:bg-red-500 hover:text-white"
+                        title="Excluir Permatentemente"
+                      >
+                        <span className="material-icons text-[1.1rem]">delete_forever</span>
+                      </button>
                     </td>
                   </tr>
                 );
@@ -154,6 +194,14 @@ export const UsersList: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {isModalOpen && (
+        <AddUserModal 
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onUserAdded={loadUsers}
+        />
+      )}
     </div>
   );
 };

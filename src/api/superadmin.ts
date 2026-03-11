@@ -58,3 +58,58 @@ export async function getSuperAdminStats() {
         totalInactive: inactiveCount || 0,
     };
 }
+
+// Delete user (Full removal from database)
+export async function deleteUser(userId: string): Promise<boolean> {
+    const { error } = await supabase
+        .from('clientes')
+        .delete()
+        .eq('id', userId);
+
+    if (error) {
+        console.error('deleteUser error:', error.message);
+        return false;
+    }
+    return true;
+}
+
+// Create a new user from Super Admin panel
+export async function createUser(userData: {
+    nome: string;
+    cpf: string;
+    contato: string;
+    email: string;
+    role: 'admin' | 'user' | 'superadmin';
+    senha_app: string;
+}): Promise<{ success: boolean; error?: string }> {
+    const cpfClean = userData.cpf.replace(/\D/g, '');
+
+    // Check if CPF already exists
+    const { data: existing } = await supabase
+        .from('clientes')
+        .select('id')
+        .eq('cpf', cpfClean)
+        .maybeSingle();
+
+    if (existing) {
+        return { success: false, error: 'CPF já cadastrado no sistema.' };
+    }
+
+    const { error } = await supabase.from('clientes').insert({
+        id: `user-${Date.now()}`,
+        nome: userData.nome,
+        cpf: cpfClean,
+        contato: userData.contato,
+        email: userData.email,
+        role: userData.role,
+        senha_app: userData.senha_app,
+        ativo: true
+    });
+
+    if (error) {
+        console.error('createUser error:', error.message);
+        return { success: false, error: 'Erro ao criar usuário no banco de dados.' };
+    }
+
+    return { success: true };
+}
