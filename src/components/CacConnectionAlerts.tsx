@@ -4,9 +4,10 @@ import { fetchCacConnections, acceptConnectionInvite, deleteConnection } from '.
 
 interface CacConnectionAlertsProps {
     user: UserProfile;
+    onConnectionAccepted?: () => void;
 }
 
-export const CacConnectionAlerts: React.FC<CacConnectionAlertsProps> = ({ user }) => {
+export const CacConnectionAlerts: React.FC<CacConnectionAlertsProps> = ({ user, onConnectionAccepted }) => {
     const [connections, setConnections] = useState<DispatcherConnection[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
@@ -33,6 +34,7 @@ export const CacConnectionAlerts: React.FC<CacConnectionAlertsProps> = ({ user }
         if (success) {
             showMessage('Despachante autorizado com sucesso!');
             loadConnections();
+            if (onConnectionAccepted) onConnectionAccepted();
         } else {
             showMessage('Erro ao autorizar despachante.');
         }

@@ -19,6 +19,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     const [recNovaSenha, setRecNovaSenha] = useState('');
 
     // States: Registro (Obrigatórios)
+    const [regRole, setRegRole] = useState<'user' | 'admin'>('user');
     const [regNome, setRegNome] = useState('');
     const [regCpf, setRegCpf] = useState('');
     const [regContato, setRegContato] = useState('');
@@ -39,8 +40,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     // Dynamic Branding based on the URL accessed
-    const isGestao = window.location.hostname.includes('gestao-cac');
-    const appTitle = isGestao ? 'Gestão Despachante CAC' : 'Portal GCAC';
+    const appTitle = 'Portal GCAC'; // Unificado, mudamos no proximo update geral
 
     React.useEffect(() => {
         document.title = appTitle;
@@ -70,7 +70,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         }
 
         if (profile.ativo === false) {
-            setErro('Sua conta está inativa. Contate a administração para reativar o acesso.');
+            setErro('Sua conta está em análise por um administrador. Aguarde a liberação.');
             setIsLoading(false);
             return;
         }
@@ -151,7 +151,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             return;
         }
 
-        if (!regAtivAtirador && !regAtivCacador && !regAtivColecionador) {
+        if (regRole === 'user' && !regAtivAtirador && !regAtivCacador && !regAtivColecionador) {
             setErro('Selecione pelo menos uma Atividade Ativa no CR (*).');
             setIsLoading(false);
             return;
@@ -172,7 +172,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
         const newUser: UserProfile = {
             id: `user-${Date.now()}`,
-            role: 'user',
+            role: regRole,
             nome: regNome,
             cpf: cpfClean,
             telefone: regContato,
@@ -193,10 +193,11 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             return;
         }
 
-        setSucesso('Cadastro realizado com sucesso! Faça login.');
+        setSucesso('Cadastro realizado com sucesso! Sua conta está em análise. Aguarde a liberação.');
         setTimeout(() => {
             setIsRegistering(false);
-        }, 1500);
+            setSucesso('');
+        }, 3500);
         setIsLoading(false);
     };
 
@@ -364,6 +365,32 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                             {/* OBRIGATÓRIOS */}
                             <div className="flex flex-col gap-4 bg-black bg-opacity-20 p-4 rounded-md border border-color-light">
                                 <h3 className="font-bold text-accent-primary border-b border-color-light pb-2">Dados Obrigatórios</h3>
+
+                                <div>
+                                    <label className="text-sm font-bold mb-1 block">Perfil de Acesso *</label>
+                                    <div className="flex gap-4">
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input 
+                                                type="radio" 
+                                                name="role" 
+                                                value="user" 
+                                                checked={regRole === 'user'} 
+                                                onChange={() => setRegRole('user')} 
+                                            />
+                                            <span className="text-sm">Sou CAC</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input 
+                                                type="radio" 
+                                                name="role" 
+                                                value="admin" 
+                                                checked={regRole === 'admin'} 
+                                                onChange={() => setRegRole('admin')} 
+                                            />
+                                            <span className="text-sm">Sou Despachante</span>
+                                        </label>
+                                    </div>
+                                </div>
 
                                 <div>
                                     <label className="text-sm font-bold mb-1 block">Nome Completo *</label>

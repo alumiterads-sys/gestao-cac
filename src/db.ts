@@ -24,12 +24,14 @@ function rowToProfile(row: Record<string, unknown>): UserProfile {
         clubeFiliado: (row.clube_filiado as string) || '',
         nivelAtirador: (row.nivel_atirador as '1' | '2' | '3') || undefined,
         observacoesGlobais: (row.observacoes as string) || '',
-        role: (row.role as 'admin' | 'user') || 'user',
+        role: (row.role as 'admin' | 'user' | 'superadmin') || 'user',
+        ativo: row.ativo as boolean | undefined,
+        despachante_id: row.despachante_id as string | null | undefined,
     };
 }
 
 /**
- * Registra novo cliente (usuário CAC) na tabela `clientes`.
+ * Registra novo cliente (usuário CAC ou Despachante) na tabela `clientes`.
  * Retorna `true` em sucesso, `false` se CPF já existir.
  */
 export async function registerUser(profile: UserProfile, senha: string): Promise<boolean> {
@@ -55,7 +57,8 @@ export async function registerUser(profile: UserProfile, senha: string): Promise
         clube_filiado: profile.clubeFiliado || null,
         nivel_atirador: profile.nivelAtirador || null,
         observacoes: profile.observacoesGlobais || null,
-        role: 'user',
+        role: profile.role || 'user',
+        ativo: false, // Novos cadastros sempre nascem inativos aguardando aprovação
     });
 
     if (error) {

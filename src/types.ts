@@ -13,6 +13,7 @@ export interface UserProfile {
   observacoesGlobais: string;
   role: 'admin' | 'user' | 'superadmin'; // admin = despachante, user = CAC, superadmin = gestor app
   ativo?: boolean;
+  despachante_id?: string | null;
 }
 
 export type TipoArma = 'Carabina/Fuzil' | 'Revólver' | 'Pistola' | 'Pistolete' | 'Espingarda';
@@ -99,6 +100,7 @@ export interface Cliente {
   clube_filiado?: string;
   role: 'admin' | 'user' | 'superadmin';
   ativo?: boolean;
+  despachante_id?: string | null;
   created_at?: string;
 }
 

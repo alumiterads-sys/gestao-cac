@@ -15,7 +15,8 @@ import {
   fetchWeapons, createWeapon, updateWeapon, deleteWeapon,
   fetchGuides, createGuide, updateGuide, deleteGuide,
   fetchIbamaDoc, saveIbamaDoc,
-  createIbamaProperty, updateIbamaProperty, deleteIbamaProperty
+  createIbamaProperty, updateIbamaProperty, deleteIbamaProperty,
+  fetchUserProfileById
 } from './api';
 import { updateUserProfile } from './db';
 import type { UserProfile, Weapon, TrafficGuide, IbamaDoc, IbamaProperty } from './types';
@@ -92,6 +93,16 @@ export const App: React.FC = () => {
     }
   };
 
+  const refreshUser = async () => {
+    if (user) {
+      const updated = await fetchUserProfileById(user.id);
+      if (updated) {
+        setUser(updated);
+        localStorage.setItem('gcac_session_user', JSON.stringify(updated));
+      }
+    }
+  };
+
   // ─── Weapons ──────────────────────────────────────────────
   const handleAddWeapon = async (w: Weapon) => {
     const result = await createWeapon(w);
@@ -157,11 +168,10 @@ export const App: React.FC = () => {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Determine se o layout deve ser de Administrador
-  // Gestão CAC deve sempre carregar layout Admin, Portal GCAC o de Usuário CAC.
-  const isGestaoHost = typeof window !== 'undefined' && window.location.hostname.includes('gestao-cac');
+  // Determine se o layout deve ser de Administrador ou de Usuário
+  // O aplicativo foi unificado. O layout é ditado puramente pela role do usuário.
   const isSuperAdminLayout = user.role === 'superadmin';
-  const isAdminLayout = user.role === 'admin' || isGestaoHost;
+  const isAdminLayout = user.role === 'admin';
 
   if (isSuperAdminLayout) {
     return (
@@ -251,7 +261,7 @@ export const App: React.FC = () => {
   return (
     <Layout userName={user.nome} onLogout={handleLogout} role="user">
       <div className="flex flex-col gap-8">
-        <CacConnectionAlerts user={user} />
+        <CacConnectionAlerts user={user} onConnectionAccepted={refreshUser} />
 
         <Dashboard
           user={user}

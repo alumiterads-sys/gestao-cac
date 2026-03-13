@@ -245,6 +245,17 @@ export async function fetchUserProfileById(id: string): Promise<UserProfile | nu
 // ─── DESPACHANTE <-> CAC CONNECTIONS ──────────────────────────
 // These calls hit the Supabase 'conexoes' and 'clientes' tables directly.
 
+export async function fetchDispatcherName(dispatcherId: string): Promise<string | null> {
+    const { data, error } = await supabase
+        .from('clientes')
+        .select('nome')
+        .eq('id', dispatcherId)
+        .maybeSingle();
+
+    if (error || !data) return null;
+    return data.nome;
+}
+
 export async function searchUserByCpf(cpf: string) {
     const cleanCpf = cpf.replace(/\D/g, '');
     const { data, error } = await supabase
@@ -287,10 +298,24 @@ export async function createConnectionInvite(dispatcherId: string, cacId: string
         console.error('Error sending invite:', error.message);
         return false;
     }
+
     return true;
 }
 
 export async function acceptConnectionInvite(connectionId: string): Promise<boolean> {
+    // 1. Fetch the connection details to get IDs
+    const { data: conn, error: connError } = await supabase
+        .from('conexoes')
+        .select('dispatcher_id, cac_id')
+        .eq('id', connectionId)
+        .maybeSingle();
+
+    if (connError || !conn) {
+        console.error('Error fetching connection for approval:', connError?.message);
+        return false;
+    }
+
+    // 2. Mark the connection as active
     const { error } = await supabase
         .from('conexoes')
         .update({ status: 'active' })
@@ -300,10 +325,28 @@ export async function acceptConnectionInvite(connectionId: string): Promise<bool
         console.error('Error accepting invite:', error.message);
         return false;
     }
+
+    // 3. Update the CAC's despachante_id in the clientes table
+    const { error: clientError } = await supabase
+        .from('clientes')
+        .update({ despachante_id: conn.dispatcher_id })
+        .eq('id', conn.cac_id);
+
+    if (clientError) {
+        console.error('Error updating cac despachante_id on approval:', clientError.message);
+    }
+
     return true;
 }
 
 export async function deleteConnection(connectionId: string): Promise<boolean> {
+    // Primeiro, pegar qual cac_id estava vinculado para limpar na tabela clientes
+    const { data: conn } = await supabase
+        .from('conexoes')
+        .select('cac_id')
+        .eq('id', connectionId)
+        .maybeSingle();
+
     const { error } = await supabase
         .from('conexoes')
         .delete()
@@ -313,6 +356,15 @@ export async function deleteConnection(connectionId: string): Promise<boolean> {
         console.error('Error deleting connection:', error.message);
         return false;
     }
+
+    // Se encontramos o CAC vinculado, limpa o seu despachante_id
+    if (conn?.cac_id) {
+        await supabase
+            .from('clientes')
+            .update({ despachante_id: null })
+            .eq('id', conn.cac_id);
+    }
+
     return true;
 }
 

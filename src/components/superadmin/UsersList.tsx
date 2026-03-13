@@ -7,7 +7,7 @@ export const UsersList: React.FC = () => {
   const [users, setUsers] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'user' | 'superadmin'>('all');
+  const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'user' | 'superadmin' | 'pending'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -66,6 +66,10 @@ export const UsersList: React.FC = () => {
       u.cpf.includes(searchTerm) ||
       u.contato.toLowerCase().includes(searchTerm.toLowerCase());
     
+    if (filterRole === 'pending') {
+        return matchesSearch && u.ativo === false;
+    }
+
     const matchesRole = filterRole === 'all' || u.role === filterRole;
     return matchesSearch && matchesRole;
   });
@@ -108,6 +112,7 @@ export const UsersList: React.FC = () => {
             className="input-field bg-[#1c1c24] border border-white/10 rounded-lg px-4 py-2 text-white outline-none focus:border-accent-primary transition-colors"
           >
             <option value="all">Todos os Tipos</option>
+            <option value="pending">Aguardando Aprovação</option>
             <option value="user">CACs</option>
             <option value="admin">Despachantes</option>
             <option value="superadmin">Super Admins</option>
