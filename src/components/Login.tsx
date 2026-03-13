@@ -186,9 +186,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         };
 
         // Salva o usuário no banco de dados remoto
-        const ok = await registerUser(newUser, regSenha);
-        if (!ok) {
-            setErro('Erro ao cadastrar. Verifique a conexão ou CPF já registrado.');
+        const result = await registerUser(newUser, regSenha);
+        if (!result.success) {
+            setErro(`Erro ao cadastrar: ${result.error}`);
             setIsLoading(false);
             return;
         }
@@ -197,8 +197,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         setTimeout(() => {
             setIsRegistering(false);
             setSucesso('');
-        }, 3500);
-        setIsLoading(false);
+            setIsLoading(false);
+        }, 5000);
     };
 
     return (

@@ -34,7 +34,7 @@ function rowToProfile(row: Record<string, unknown>): UserProfile {
  * Registra novo cliente (usuário CAC ou Despachante) na tabela `clientes`.
  * Retorna `true` em sucesso, `false` se CPF já existir.
  */
-export async function registerUser(profile: UserProfile, senha: string): Promise<boolean> {
+export async function registerUser(profile: UserProfile, senha: string): Promise<{ success: boolean; error?: string }> {
     // Verifica duplicidade de CPF
     const { data: existing } = await supabase
         .from('clientes')
@@ -42,7 +42,7 @@ export async function registerUser(profile: UserProfile, senha: string): Promise
         .eq('cpf', profile.cpf)
         .maybeSingle();
 
-    if (existing) return false;
+    if (existing) return { success: false, error: 'CPF já cadastrado' };
 
     const { error } = await supabase.from('clientes').insert({
         nome: profile.nome,
@@ -63,9 +63,9 @@ export async function registerUser(profile: UserProfile, senha: string): Promise
 
     if (error) {
         console.error('Erro ao registrar usuário:', error.message);
-        return false;
+        return { success: false, error: error.message };
     }
-    return true;
+    return { success: true };
 }
 
 /**
