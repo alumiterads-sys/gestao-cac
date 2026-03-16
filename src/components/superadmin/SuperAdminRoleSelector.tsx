@@ -21,9 +21,11 @@ export const SuperAdminRoleSelector: React.FC<SuperAdminRoleSelectorProps> = ({ 
                 <span className="text-sm font-bold uppercase tracking-wider">Sair</span>
             </button>
 
-            <div className="max-w-4xl w-full animate-fade-in flex flex-col items-center z-10">
-                <img src="/logo.png" alt="G CAC Logo" className="navbar-logo" style={{ height: '120px', marginBottom: '1.5rem' }} />
-                
+
+            {/* Logo fora do container animado para mix-blend-mode funcionar corretamente */}
+            <img src="/logo.png" alt="G CAC Logo" className="navbar-logo" style={{ height: '120px', marginBottom: '1.5rem', position: 'relative', zIndex: 10 }} />
+
+            <div style={{ maxWidth: '56rem', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 10 }} className="animate-fade-in">
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 text-center tracking-tight">
                     Bem-vindo(a), {user.nome.split(' ')[0]}
                 </h1>
