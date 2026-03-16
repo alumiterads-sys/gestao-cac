@@ -9,7 +9,7 @@ interface SuperAdminRoleSelectorProps {
 
 export const SuperAdminRoleSelector: React.FC<SuperAdminRoleSelectorProps> = ({ user, onSelectRole, onLogout }) => {
     return (
-        <div className="min-h-screen bg-primary flex flex-col items-center justify-center p-4 relative font-sans">
+        <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '1rem', position: 'relative' }}>
             {/* Background Logo Watermark (reused from Layout) */}
             <div className="bg-watermark"></div>
 
@@ -22,7 +22,7 @@ export const SuperAdminRoleSelector: React.FC<SuperAdminRoleSelectorProps> = ({ 
             </button>
 
             <div className="max-w-4xl w-full animate-fade-in flex flex-col items-center z-10">
-                <img src="/logo.png" alt="G CAC Logo" style={{ height: '80px', width: 'auto', objectFit: 'contain', marginBottom: '1.5rem', mixBlendMode: 'screen', filter: 'drop-shadow(0 0 12px rgba(59, 130, 246, 0.5))' }} />
+                <img src="/logo.png" alt="G CAC Logo" style={{ height: '120px', width: 'auto', objectFit: 'contain', marginBottom: '1.5rem', mixBlendMode: 'screen', filter: 'drop-shadow(0 0 14px rgba(59, 130, 246, 0.6))' }} />
                 
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 text-center tracking-tight">
                     Bem-vindo(a), {user.nome.split(' ')[0]}
