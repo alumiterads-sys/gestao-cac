@@ -47,7 +47,7 @@ export const SuperAdminRoleSelector: React.FC<SuperAdminRoleSelectorProps> = ({ 
                         <p className="text-muted-foreground text-sm flex-1 z-10 font-normal leading-relaxed">
                             Acesso ao painel global da plataforma. Gerencie usuários, faturamento e integrações B2B.
                         </p>
-                        <div className="mt-6 z-10 text-sm font-bold flex items-center gap-1 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all" style={{ color: '#a855f7' }}>
+                        <div className="mt-6 z-10 text-sm font-bold flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all" style={{ color: '#a855f7' }}>
                             Acessar Painel <span className="material-icons text-sm">arrow_forward</span>
                         </div>
                     </button>
@@ -66,7 +66,7 @@ export const SuperAdminRoleSelector: React.FC<SuperAdminRoleSelectorProps> = ({ 
                         <p className="text-muted-foreground text-sm flex-1 z-10 font-normal leading-relaxed">
                             Gerencie sua carteira de clientes, acompanhe O.S. e efetue o controle da sua assessoria (B2B).
                         </p>
-                        <div className="mt-6 z-10 text-sm font-bold flex items-center gap-1 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all" style={{ color: '#f59e0b' }}>
+                        <div className="mt-6 z-10 text-sm font-bold flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all" style={{ color: '#f59e0b' }}>
                             Acessar Painel <span className="material-icons text-sm">arrow_forward</span>
                         </div>
                     </button>
@@ -85,7 +85,7 @@ export const SuperAdminRoleSelector: React.FC<SuperAdminRoleSelectorProps> = ({ 
                         <p className="text-muted-foreground text-sm flex-1 z-10 font-normal leading-relaxed">
                             Visão de usuário final (B2C). Gerencie seu próprio acervo, guias de tráfego e licenças.
                         </p>
-                        <div className="mt-6 z-10 text-accent-primary text-sm font-bold flex items-center gap-1 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
+                        <div className="mt-6 z-10 text-accent-primary text-sm font-bold flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
                             Acessar Painel <span className="material-icons text-sm">arrow_forward</span>
                         </div>
                     </button>
