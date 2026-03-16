@@ -22,7 +22,7 @@ export const SuperAdminRoleSelector: React.FC<SuperAdminRoleSelectorProps> = ({ 
             </button>
 
             <div className="max-w-4xl w-full animate-fade-in flex flex-col items-center z-10">
-                <img src="/logo.png" alt="G CAC Logo" style={{ height: '120px', width: 'auto', objectFit: 'contain', marginBottom: '1.5rem', mixBlendMode: 'screen', filter: 'drop-shadow(0 0 14px rgba(59, 130, 246, 0.6))' }} />
+                <img src="/logo.png" alt="G CAC Logo" className="navbar-logo" style={{ height: '120px', marginBottom: '1.5rem' }} />
                 
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 text-center tracking-tight">
                     Bem-vindo(a), {user.nome.split(' ')[0]}
