@@ -33,6 +33,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     const [regAtivAtirador, setRegAtivAtirador] = useState(false);
     const [regAtivCacador, setRegAtivCacador] = useState(false);
     const [regAtivColecionador, setRegAtivColecionador] = useState(false);
+    const [regNivelAtirador, setRegNivelAtirador] = useState<'1' | '2' | '3' | ''>('');
 
     // UI States
     const [erro, setErro] = useState('');
@@ -157,6 +158,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             return;
         }
 
+        if (regRole === 'user' && regAtivAtirador && !regNivelAtirador) {
+            setErro('Por favor, selecione seu Nível de Atirador.');
+            setIsLoading(false);
+            return;
+        }
+
         const cpfClean = regCpf.replace(/\D/g, '');
         const cpfExists = await isCpfRegistered(cpfClean);
         if (cpfExists) {
@@ -182,7 +189,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             atividadesCR: ativ,
             email: regEmail,
             clubeFiliado: regClube,
-            observacoesGlobais: ''
+            observacoesGlobais: '',
+            nivelAtirador: regAtivAtirador ? (regNivelAtirador as '1' | '2' | '3') : undefined
         };
 
         // Salva o usuário no banco de dados remoto
@@ -442,6 +450,23 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                                             <input type="checkbox" checked={regAtivAtirador} onChange={e => setRegAtivAtirador(e.target.checked)} />
                                             Atirador Desportivo
                                         </label>
+                                        
+                                        {regAtivAtirador && (
+                                            <div className="ml-6 mb-2 flex flex-col gap-1">
+                                                <label className="text-xs text-muted-foreground">Nível de Atirador *</label>
+                                                <select
+                                                    value={regNivelAtirador}
+                                                    onChange={(e) => setRegNivelAtirador(e.target.value as any)}
+                                                    className="w-full bg-black bg-opacity-40 border border-color-light rounded-md p-2 text-sm text-white focus:border-accent-primary focus:outline-none"
+                                                >
+                                                    <option value="" disabled>--- Escolha um nível ---</option>
+                                                    <option value="1">Nível 1</option>
+                                                    <option value="2">Nível 2</option>
+                                                    <option value="3">Nível 3</option>
+                                                </select>
+                                            </div>
+                                        )}
+
                                         <label className="flex items-center gap-2 cursor-pointer text-sm">
                                             <input type="checkbox" checked={regAtivCacador} onChange={e => setRegAtivCacador(e.target.checked)} />
                                             Caçador

@@ -10,6 +10,7 @@ import { DashboardDespachante } from './components/DashboardDespachante';
 import { ServicosView } from './components/ServicosView';
 import { OrdensServicoView } from './components/OrdensServicoView';
 import { SuperAdminDashboard } from './components/superadmin/SuperAdminDashboard';
+import { FirstAccessModal } from './components/FirstAccessModal';
 import * as Tabs from '@radix-ui/react-tabs';
 import {
   fetchWeapons, createWeapon, updateWeapon, deleteWeapon,
@@ -254,6 +255,21 @@ export const App: React.FC = () => {
         <div className="flex items-center justify-center min-h-64">
           <span className="loading-spinner" />
         </div>
+      </Layout>
+    );
+  }
+
+  // Verifica se o usuário tem o perfil incompleto (ex: acesso pelo Super Admin)
+  if (user.role === 'user' && (!user.atividadesCR || user.atividadesCR.length === 0)) {
+    return (
+      <Layout userName={user.nome} onLogout={handleLogout} role="user">
+        <FirstAccessModal 
+          user={user} 
+          onComplete={async (updatedProfile) => {
+             // O modal já validou tudo, vamos salvar no banco e no state
+             await handleUpdateProfile(updatedProfile);
+          }}
+        />
       </Layout>
     );
   }
