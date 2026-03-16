@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchAllUsers, toggleUserStatus, deleteUser } from '../../api/superadmin';
+import { fetchAllUsers, toggleUserStatus, deleteUser, toggleUserGratuidade } from '../../api/superadmin';
 import type { Cliente } from '../../types';
 import { AddUserModal } from './AddUserModal';
 
@@ -36,6 +36,24 @@ export const UsersList: React.FC = () => {
       );
     } else {
       alert('Erro ao alterar status do usuário.');
+    }
+  };
+
+  const handleToggleGratuidade = async (user: Cliente) => {
+    const currentGratuidade = user.gratuidade === true;
+    const confirmMessage = currentGratuidade
+      ? `Tem certeza que deseja REMOVER a Gratuidade de ${user.nome}? (Ele voltará a ver a tela de pagamento)`
+      : `Tem certeza que deseja ATRIBUIR Gratuidade a ${user.nome}? (A isenção do plano será aplicada imediatamente)`;
+
+    if (!window.confirm(confirmMessage)) return;
+
+    const success = await toggleUserGratuidade(user.id, !currentGratuidade);
+    if (success) {
+      setUsers(prev =>
+        prev.map(u => (u.id === user.id ? { ...u, gratuidade: !currentGratuidade } : u))
+      );
+    } else {
+      alert('Erro ao alterar a gratuidade do usuário.');
     }
   };
 
@@ -127,7 +145,7 @@ export const UsersList: React.FC = () => {
               <th className="p-4 rounded-tl-lg font-medium">Nome / Contato</th>
               <th className="p-4 font-medium">CPF</th>
               <th className="p-4 font-medium">Tipo</th>
-              <th className="p-4 font-medium">Status</th>
+              <th className="p-4 font-medium">Status e Plano</th>
               <th className="p-4 font-medium text-center rounded-tr-lg">Ação</th>
             </tr>
           </thead>
@@ -141,6 +159,7 @@ export const UsersList: React.FC = () => {
             ) : (
               filteredUsers.map((u) => {
                 const isAtivo = u.ativo !== false;
+                const isGratuito = u.gratuidade === true;
                 return (
                   <tr key={u.id} className="hover:bg-white/5 transition-colors group">
                     <td className="p-4">
@@ -162,35 +181,60 @@ export const UsersList: React.FC = () => {
                       </span>
                     </td>
                     <td className="p-4">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border ${
-                        isAtivo 
-                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-                          : 'bg-red-500/10 text-red-400 border-red-500/20'
-                      }`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${isAtivo ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
-                        {isAtivo ? 'Ativo' : 'Inativo'}
-                      </span>
+                      <div className="flex flex-col gap-2">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md w-fit text-xs font-medium border ${
+                            isAtivo 
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                              : 'bg-red-500/10 text-red-400 border-red-500/20'
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${isAtivo ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+                            {isAtivo ? 'Acesso Liberado' : 'Acesso Bloqueado'}
+                          </span>
+                          
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md w-fit text-xs font-medium border ${
+                             isGratuito
+                              ? 'bg-accent-primary/20 text-accent-primary border-accent-primary/30'
+                              : 'bg-white/5 text-muted-foreground border-white/10'
+                          }`}>
+                              <span className="material-icons text-[14px]">{isGratuito ? 'redeem' : 'payments'}</span>
+                              {isGratuito ? 'Gratuidade / VIP' : 'Plano Pago Padrão'}
+                          </span>
+                      </div>
                     </td>
                     <td className="p-4 text-center">
-                      <button
-                        onClick={() => handleToggleStatus(u)}
-                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                          isAtivo
-                            ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                            : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                        }`}
-                        title={isAtivo ? "Desativar acesso" : "Ativar acesso"}
-                      >
-                        {isAtivo ? 'Desativar' : 'Ativar'}
-                      </button>
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleToggleGratuidade(u)}
+                          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                            isGratuito
+                              ? 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border border-orange-500/20'
+                              : 'bg-accent-primary/10 text-accent-primary hover:bg-accent-primary/20 border border-accent-primary/20'
+                          }`}
+                          title={isGratuito ? "Remover Gratuidade (Voltar a faturar)" : "Conceder Gratuidade Vitalícia"}
+                        >
+                          {isGratuito ? 'Remover VIP' : 'Tornar VIP'}
+                        </button>
 
-                      <button
-                        onClick={() => handleDeleteUser(u)}
-                        className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-red-900/40 text-red-500 hover:bg-red-500 hover:text-white"
-                        title="Excluir Permatentemente"
-                      >
-                        <span className="material-icons text-[1.1rem]">delete_forever</span>
-                      </button>
+                        <button
+                          onClick={() => handleToggleStatus(u)}
+                          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                            isAtivo
+                              ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20'
+                              : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20'
+                          }`}
+                          title={isAtivo ? "Desativar acesso total" : "Ativar acesso do usuário"}
+                        >
+                          {isAtivo ? 'Desativar' : 'Ativar'}
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteUser(u)}
+                          className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-red-900/40 text-red-500 hover:bg-red-500 hover:text-white border border-red-900/50"
+                          title="Excluir Permatentemente"
+                        >
+                          <span className="material-icons text-[1.1rem]">delete_forever</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

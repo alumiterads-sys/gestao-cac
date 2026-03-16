@@ -31,6 +31,21 @@ export async function toggleUserStatus(userId: string, currentStatus: boolean): 
     return true;
 }
 
+// Toggle user gratuidade status
+export async function toggleUserGratuidade(userId: string, newStatus: boolean) {
+    const { error } = await supabase
+        .from('clientes')
+        .update({ gratuidade: newStatus })
+        .eq('id', userId);
+
+    if (error) {
+        console.error('Error toggling gratuidade status:', error.message);
+        return false;
+    }
+
+    return true;
+}
+
 // Get system stats
 export async function getSuperAdminStats() {
     const { count: cacCount, error: cacError } = await supabase

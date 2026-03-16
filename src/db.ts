@@ -27,6 +27,7 @@ function rowToProfile(row: Record<string, unknown>): UserProfile {
         role: (row.role as 'admin' | 'user' | 'superadmin') || 'user',
         ativo: row.ativo as boolean | undefined,
         despachante_id: row.despachante_id as string | null | undefined,
+        gratuidade: row.gratuidade as boolean | undefined,
     };
 }
 

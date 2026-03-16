@@ -14,6 +14,7 @@ export interface UserProfile {
   role: 'admin' | 'user' | 'superadmin'; // admin = despachante, user = CAC, superadmin = gestor app
   ativo?: boolean;
   despachante_id?: string | null;
+  gratuidade?: boolean;
 }
 
 export type TipoArma = 'Carabina/Fuzil' | 'Revólver' | 'Pistola' | 'Pistolete' | 'Espingarda';
@@ -101,6 +102,7 @@ export interface Cliente {
   role: 'admin' | 'user' | 'superadmin';
   ativo?: boolean;
   despachante_id?: string | null;
+  gratuidade?: boolean;
   created_at?: string;
 }
 

@@ -240,8 +240,11 @@ export const App: React.FC = () => {
   }
 
   // Verificar Paywall (Restrição Financeira)
-  // Superadmins sempre passam. Senão, verificar se tem assinatura ativa
-  const needsPaywall = user.role !== 'superadmin' && (!activeSubscription || (activeSubscription.status !== 'ativa' && activeSubscription.status !== 'trial'));
+  // Superadmins sempre passam. Gratuidade (VIP) sempre passa. Senão, verificar se tem assinatura ativa
+  const needsPaywall = 
+        user.role !== 'superadmin' && 
+        user.gratuidade !== true &&
+        (!activeSubscription || (activeSubscription.status !== 'ativa' && activeSubscription.status !== 'trial'));
   
   if (needsPaywall) {
       return (
