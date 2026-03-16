@@ -4,9 +4,14 @@ import { StatsOverview } from './StatsOverview';
 import { UsersList } from './UsersList';
 import { GlobalFinancialSettings } from './GlobalFinancialSettings';
 
+interface SuperAdminDashboardProps {
+  currentUserId?: string;
+  onUserUpdated?: () => void;
+}
+
 // Este componente substituirá o conteúdo principal (`DashboardDespachante`, etc) no `App.tsx`
 // O `Layout` em `App.tsx` já engloba ele (e pode usar o menu de admin).
-export const SuperAdminDashboard: React.FC = () => {
+export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({ currentUserId, onUserUpdated }) => {
   return (
     <div className="flex flex-col mx-auto max-w-6xl w-full gap-6 animate-fade-in">
       <div className="mb-4">
@@ -50,7 +55,7 @@ export const SuperAdminDashboard: React.FC = () => {
         </Tabs.Content>
 
         <Tabs.Content value="users" className="outline-none">
-          <UsersList />
+          <UsersList currentUserId={currentUserId} onUserUpdated={onUserUpdated} />
         </Tabs.Content>
 
         <Tabs.Content value="finance" className="outline-none mt-4">

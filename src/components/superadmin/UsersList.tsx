@@ -4,7 +4,12 @@ import type { Cliente } from '../../types';
 import { AddUserModal } from './AddUserModal';
 import { EditUserModal } from './EditUserModal';
 
-export const UsersList: React.FC = () => {
+interface UsersListProps {
+  currentUserId?: string;
+  onUserUpdated?: () => void;
+}
+
+export const UsersList: React.FC<UsersListProps> = ({ currentUserId, onUserUpdated }) => {
   const [users, setUsers] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,6 +42,7 @@ export const UsersList: React.FC = () => {
       setUsers(prev =>
         prev.map(u => (u.id === user.id ? { ...u, ativo: !currentStatus } : u))
       );
+      if (onUserUpdated && user.id === currentUserId) onUserUpdated();
     } else {
       alert('Erro ao alterar status do usuário.');
     }
@@ -55,6 +61,7 @@ export const UsersList: React.FC = () => {
       setUsers(prev =>
         prev.map(u => (u.id === user.id ? { ...u, gratuidade: !currentGratuidade } : u))
       );
+      if (onUserUpdated && user.id === currentUserId) onUserUpdated();
     } else {
       alert('Erro ao alterar a gratuidade do usuário.');
     }
@@ -274,7 +281,12 @@ export const UsersList: React.FC = () => {
                 setUserToEdit(null);
             }}
             user={userToEdit}
-            onUserUpdated={loadUsers}
+            onUserUpdated={() => {
+                loadUsers();
+                if (onUserUpdated && userToEdit.id === currentUserId) {
+                    onUserUpdated();
+                }
+            }}
          />
       )}
     </div>

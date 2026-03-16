@@ -267,7 +267,7 @@ export const App: React.FC = () => {
   if (isSuperAdminLayout) {
     return (
       <Layout userName={user.nome} onLogout={handleLogout} role="superadmin">
-        <SuperAdminDashboard />
+        <SuperAdminDashboard currentUserId={user.id} onUserUpdated={refreshUser} />
       </Layout>
     );
   }
