@@ -127,3 +127,37 @@ export async function createUser(userData: {
 
     return { success: true };
 }
+
+// Edit existing user profile globally
+export async function editUser(userId: string, updates: Partial<Cliente>): Promise<{ success: boolean; error?: string }> {
+    const { id, created_at, ...allowedUpdates } = updates as any; // Prevent updating ID or creation date
+
+    // Se estiver atualizando o CPF, limpar máscara
+    if (allowedUpdates.cpf) {
+        allowedUpdates.cpf = allowedUpdates.cpf.replace(/\D/g, '');
+        
+        // Check if new CPF already exists for ANOTHER user
+        const { data: existing } = await supabase
+            .from('clientes')
+            .select('id')
+            .eq('cpf', allowedUpdates.cpf)
+            .neq('id', userId)
+            .maybeSingle();
+
+        if (existing) {
+            return { success: false, error: 'Este CPF já está sendo usado por outro usuário no sistema.' };
+        }
+    }
+
+    const { error } = await supabase
+        .from('clientes')
+        .update(allowedUpdates)
+        .eq('id', userId);
+
+    if (error) {
+        console.error('editUser error:', error.message);
+        return { success: false, error: 'Erro ao atualizar dados do usuário.' };
+    }
+
+    return { success: true };
+}

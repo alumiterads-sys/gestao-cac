@@ -103,6 +103,9 @@ export interface Cliente {
   ativo?: boolean;
   despachante_id?: string | null;
   gratuidade?: boolean;
+  email?: string | null;
+  senha_app?: string | null;
+  nivel_atirador?: string | null;
   created_at?: string;
 }
 

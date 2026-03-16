@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchAllUsers, toggleUserStatus, deleteUser, toggleUserGratuidade } from '../../api/superadmin';
 import type { Cliente } from '../../types';
 import { AddUserModal } from './AddUserModal';
+import { EditUserModal } from './EditUserModal';
 
 export const UsersList: React.FC = () => {
   const [users, setUsers] = useState<Cliente[]>([]);
@@ -9,6 +10,8 @@ export const UsersList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'user' | 'superadmin' | 'pending'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState<Cliente | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -204,6 +207,17 @@ export const UsersList: React.FC = () => {
                     <td className="p-4 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
+                          onClick={() => {
+                              setUserToEdit(u);
+                              setIsEditModalOpen(true);
+                          }}
+                          className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20"
+                          title="Editar todos os dados"
+                        >
+                          <span className="material-icons text-[1.1rem]">edit</span>
+                        </button>
+                        
+                        <button
                           onClick={() => handleToggleGratuidade(u)}
                           className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                             isGratuito
@@ -250,6 +264,18 @@ export const UsersList: React.FC = () => {
             onClose={() => setIsModalOpen(false)}
             onUserAdded={loadUsers}
         />
+      )}
+
+      {isEditModalOpen && userToEdit && (
+         <EditUserModal
+            isOpen={isEditModalOpen}
+            onClose={() => {
+                setIsEditModalOpen(false);
+                setUserToEdit(null);
+            }}
+            user={userToEdit}
+            onUserUpdated={loadUsers}
+         />
       )}
     </div>
   );
