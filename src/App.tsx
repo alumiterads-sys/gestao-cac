@@ -13,6 +13,7 @@ import { OrdensServicoView } from './components/OrdensServicoView';
 import { SuperAdminDashboard } from './components/superadmin/SuperAdminDashboard';
 import { FirstAccessModal } from './components/FirstAccessModal';
 import { Paywall } from './components/Paywall';
+import { SuperAdminRoleSelector } from './components/superadmin/SuperAdminRoleSelector';
 import { fetchAssinaturasDoUsuario, fetchConfiguracoesGlobais } from './api/financeiro';
 import * as Tabs from '@radix-ui/react-tabs';
 import {
@@ -44,6 +45,9 @@ export const App: React.FC = () => {
   const [globalConfig, setGlobalConfig] = useState<any>(null);
   const [activeSubscription, setActiveSubscription] = useState<any>(null);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
+
+  // ─── Super Admin Role Switcher State ──────────────────────
+  const [currentViewRole, setCurrentViewRole] = useState<'admin' | 'user' | 'superadmin' | null>(null);
 
   // ─── Carrega dados do Supabase ao logar ───────────────────
   useEffect(() => {
@@ -106,11 +110,16 @@ export const App: React.FC = () => {
   const handleLoginSuccess = (loginUser: UserProfile) => {
     setUser(loginUser);
     setIsAuthenticated(true);
+    // Se for superadmin, reseta a view para forçar a tela de seleção
+    if (loginUser.role === 'superadmin') {
+      setCurrentViewRole(null);
+    }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUser(null);
+    setCurrentViewRole(null);
     setWeapons([]);
     setGuides([]);
     setIbamaDoc(null);
@@ -259,14 +268,34 @@ export const App: React.FC = () => {
       );
   }
 
+  // Se for superadmin original de banco e ainda não escolheu um papel:
+  const isSuperAdminUser = user.role === 'superadmin';
+  if (isSuperAdminUser && currentViewRole === null) {
+      return (
+          <SuperAdminRoleSelector 
+              user={user} 
+              onSelectRole={(role: 'superadmin' | 'admin' | 'user') => setCurrentViewRole(role)} 
+              onLogout={handleLogout} 
+          />
+      );
+  }
+
   // Determine se o layout deve ser de Administrador ou de Usuário
-  // O aplicativo foi unificado. O layout é ditado puramente pela role do usuário.
-  const isSuperAdminLayout = user.role === 'superadmin';
-  const isAdminLayout = user.role === 'admin';
+  // O aplicativo foi unificado. O layout é ditado pela role escolhida (ou a role real se não for superadmin).
+  const effectiveRole = isSuperAdminUser && currentViewRole ? currentViewRole : user.role;
+  const isSuperAdminLayout = effectiveRole === 'superadmin';
+  const isAdminLayout = effectiveRole === 'admin';
+
+  const layoutProps = {
+      userName: user.nome,
+      onLogout: handleLogout,
+      isSuperAdminUser: isSuperAdminUser,
+      onSwitchRole: () => setCurrentViewRole(null) // Volta para a tela de seleção
+  };
 
   if (isSuperAdminLayout) {
     return (
-      <Layout userName={user.nome} onLogout={handleLogout} role="superadmin">
+      <Layout {...layoutProps} role="superadmin">
         <SuperAdminDashboard currentUserId={user.id} onUserUpdated={refreshUser} />
       </Layout>
     );
@@ -275,7 +304,7 @@ export const App: React.FC = () => {
   // Painel Admin / Despachante
   if (isAdminLayout) {
     return (
-      <Layout userName={user.nome} onLogout={handleLogout} role="admin">
+      <Layout {...layoutProps} role="admin">
         <div className="flex flex-col mx-auto max-w-6xl w-full gap-6 animate-fade-in">
           <Tabs.Root defaultValue="dashboard" className="w-full">
             <Tabs.List className="flex border-b border-color-light mb-6 overflow-x-auto custom-scrollbar">

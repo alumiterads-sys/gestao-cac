@@ -5,9 +5,11 @@ interface LayoutProps {
     userName?: string;
     onLogout?: () => void;
     role?: 'admin' | 'user' | 'superadmin';
+    isSuperAdminUser?: boolean; // Prop to know if the actual physical user is superadmin
+    onSwitchRole?: () => void;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, userName, onLogout, role = 'user' }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, userName, onLogout, role = 'user', isSuperAdminUser, onSwitchRole }) => {
     const badgeColor = role === 'admin' ? '#f59e0b' : role === 'superadmin' ? '#a855f7' : 'var(--accent-primary)';
 
     return (
@@ -33,6 +35,18 @@ export const Layout: React.FC<LayoutProps> = ({ children, userName, onLogout, ro
                     </div>
                     <div className="flex items-center gap-4">
                         <span className="user-greeting">Olá, {userName || 'Usuário'}</span>
+                        
+                        {isSuperAdminUser && role !== 'superadmin' && onSwitchRole && (
+                             <button
+                               onClick={onSwitchRole}
+                               className="btn bg-accent-primary/20 text-accent-primary hover:bg-accent-primary/30 border border-accent-primary/30 flex items-center gap-2"
+                               title="Voltar para a seleção de perfil"
+                             >
+                               <span className="material-icons text-sm">swap_horiz</span>
+                               <span className="hidden sm:inline">Trocar Visão</span>
+                             </button>
+                        )}
+                        
                         <button className="btn btn-secondary" onClick={onLogout}>Sair</button>
                     </div>
                 </div>
