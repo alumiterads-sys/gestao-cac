@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from './supabase';
 import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { HierarchyView } from './components/HierarchyView';
@@ -11,6 +12,8 @@ import { ServicosView } from './components/ServicosView';
 import { OrdensServicoView } from './components/OrdensServicoView';
 import { SuperAdminDashboard } from './components/superadmin/SuperAdminDashboard';
 import { FirstAccessModal } from './components/FirstAccessModal';
+import { Paywall } from './components/Paywall';
+import { fetchAssinaturasDoUsuario, fetchConfiguracoesGlobais } from './api/financeiro';
 import * as Tabs from '@radix-ui/react-tabs';
 import {
   fetchWeapons, createWeapon, updateWeapon, deleteWeapon,
@@ -36,6 +39,11 @@ export const App: React.FC = () => {
   const [weapons, setWeapons] = useState<Weapon[]>([]);
   const [guides, setGuides] = useState<TrafficGuide[]>([]);
   const [ibamaDoc, setIbamaDoc] = useState<IbamaDoc | null>(null);
+
+  // Financial States
+  const [globalConfig, setGlobalConfig] = useState<any>(null);
+  const [activeSubscription, setActiveSubscription] = useState<any>(null);
+  const [isCheckingSubscription, setIsCheckingSubscription] = useState(false);
 
   // ─── Carrega dados do Supabase ao logar ───────────────────
   useEffect(() => {
@@ -67,6 +75,31 @@ export const App: React.FC = () => {
         saveIbamaDoc(newIbama);
       }
     });
+  }, [user]);
+
+  // Checa e carrega configs financeiras quando o App inicia
+  useEffect(() => {
+    fetchConfiguracoesGlobais().then(config => {
+       if (config) setGlobalConfig(config);
+    });
+  }, []);
+
+  // Verifica assinatura sempre que user mudar
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!user || user.role === 'superadmin') {
+         setIsCheckingSubscription(false);
+         return; 
+      }
+      setIsCheckingSubscription(true);
+      const assinaturas = await fetchAssinaturasDoUsuario(user.id);
+      // Pega a assinatura mais recente ou ativa
+      const assinaturaApenas = assinaturas.find(a => a.status === 'ativa' || a.status === 'trial') || assinaturas[0];
+      setActiveSubscription(assinaturaApenas || null);
+      setIsCheckingSubscription(false);
+    };
+
+    checkSubscription();
   }, [user]);
 
   // ─── Auth ─────────────────────────────────────────────────
@@ -167,6 +200,60 @@ export const App: React.FC = () => {
   // ─── Render ───────────────────────────────────────────────
   if (!isAuthenticated || !user) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
+
+  const handleAssinarPlano = async (planoId: string) => {
+    // Espaço para a integração final com Gateway (Asaas/Stripe)
+    alert(`Integração com Gateway de Pagamento pendente.\nVocê escolheu o plano: ${planoId}\nRedirecionando para o Checkout (Mock)...`);
+    
+    // Simulação temporária: ativa a assinatura direto para testes.
+    try {
+        const endDate = new Date();
+        if (planoId === 'cac_semestral') endDate.setMonth(endDate.getMonth() + 6);
+        else if (planoId === 'cac_anual') endDate.setFullYear(endDate.getFullYear() + 1);
+        else endDate.setMonth(endDate.getMonth() + 1); // despachante
+
+        const novaAssina = {
+            cliente_id: user.id,
+            tipo_plano: planoId as any,
+            status: 'ativa' as any,
+            data_inicio: new Date().toISOString(),
+            data_vencimento: endDate.toISOString(),
+            valor_recorrente: 0, // lido na criacao via backend
+        };
+        const { error } = await supabase.from('assinaturas').insert([novaAssina]);
+        if (!error) {
+           window.location.reload();
+        }
+    } catch(e) { console.error(e) }
+  };
+
+  if (isCheckingSubscription) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#121214]">
+        <div className="flex flex-col items-center gap-4">
+           <span className="loading-spinner w-8 h-8 border-4 border-accent-primary" />
+           <p className="text-muted-foreground animate-pulse">Verificando status da licença...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Verificar Paywall (Restrição Financeira)
+  // Superadmins sempre passam. Senão, verificar se tem assinatura ativa
+  const needsPaywall = user.role !== 'superadmin' && (!activeSubscription || (activeSubscription.status !== 'ativa' && activeSubscription.status !== 'trial'));
+  
+  if (needsPaywall) {
+      return (
+          <Paywall 
+             tipoCliente={user.role === 'admin' ? 'despachante_base' : 'cac'}
+             onLogout={handleLogout}
+             onAssinar={handleAssinarPlano}
+             planoPrecoSemestral={globalConfig?.plano_cac_semestral}
+             planoPrecoAnual={globalConfig?.plano_cac_anual}
+             mensalidadeDespachante={globalConfig?.mensalidade_despachante}
+          />
+      );
   }
 
   // Determine se o layout deve ser de Administrador ou de Usuário

@@ -191,3 +191,49 @@ export interface OrdemServico {
   // Nomes adicionais carregados via JOIN (se precisarmos)
   cac_nome?: string;
 }
+
+// ─── Tipos Financeiros (B2B2C) ─────────────────────
+
+export interface ConfiguracoesGlobais {
+  id: string;
+  taxa_setup_despachante: number;
+  mensalidade_despachante: number;
+  plano_cac_semestral: number;
+  plano_cac_anual: number;
+  meta_cac_desconto: number;
+  percentual_desconto_meta: number;
+  updated_at?: string;
+}
+
+export type TipoPlano = 'despachante_base' | 'cac_semestral' | 'cac_anual';
+export type StatusAssinatura = 'ativa' | 'pendente_pagamento' | 'cancelada' | 'atrasada' | 'trial';
+
+export interface Assinatura {
+  id: string;
+  cliente_id: string;
+  tipo_plano: TipoPlano;
+  status: StatusAssinatura;
+  data_inicio: string;
+  data_vencimento: string;
+  valor_recorrente: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type StatusFatura = 'aberta' | 'paga' | 'vencida' | 'cancelada';
+
+export interface Fatura {
+  id: string;
+  assinatura_id?: string;
+  cliente_id: string;
+  valor_total: number;
+  descricao: string;
+  status: StatusFatura;
+  data_emissao?: string;
+  data_vencimento: string;
+  data_pagamento?: string;
+  gateway_id?: string;
+  link_pagamento?: string;
+  created_at?: string;
+  updated_at?: string;
+}
