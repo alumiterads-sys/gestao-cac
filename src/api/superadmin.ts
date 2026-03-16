@@ -96,11 +96,10 @@ export async function createUser(userData: {
     }
 
     const { error } = await supabase.from('clientes').insert({
-        id: `user-${Date.now()}`,
         nome: userData.nome,
         cpf: cpfClean,
         contato: userData.contato,
-        email: userData.email,
+        email: userData.email || null,
         role: userData.role,
         senha_app: userData.senha_app,
         ativo: true
